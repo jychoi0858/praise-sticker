@@ -416,9 +416,9 @@ let activeChildId = null;
 let selectedTheme = 'strawberry';
 
 const THEME_STICKERS = {
-  strawberry: ['🍓','🍰','🧁','🎀','🌸','💖','🍬','🫧','🎪','✨'],
-  grape:      ['🍇','💜','🔮','🦄','🌙','💎','🎵','🦋','🪻','⭐'],
-  apple:      ['🍎','🍏','🌳','🐛','🌿','🍀','🐢','🌻','🌈','⭐']
+  strawberry: '🍓',
+  grape:      '🍇',
+  apple:      '🍎'
 };
 
 function saveLocal() {
@@ -505,9 +505,8 @@ function resetStickers() {
   persist(); renderBoard();
 }
 
-function getStickerEmoji(theme, index) {
-  const pool = THEME_STICKERS[theme] || THEME_STICKERS.strawberry;
-  return pool[index % pool.length];
+function getStickerEmoji(theme) {
+  return THEME_STICKERS[theme] || '🍓';
 }
 
 function renderAll() {
@@ -567,7 +566,7 @@ function renderBoard() {
     const slot = document.createElement('div');
     slot.className = 'sticker-slot' + (done ? ' filled' : '');
     if (done) {
-      slot.textContent = getStickerEmoji(child.theme, i);
+      slot.textContent = getStickerEmoji(child.theme);
     } else {
       slot.textContent = i + 1;
     }
