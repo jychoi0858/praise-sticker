@@ -114,13 +114,13 @@ body{
 .sticker-slot:active:not(.filled){transform:scale(.92)}
 .sticker-slot.filled{
   border:4px solid #fff;background:#fff;
-  cursor:pointer;padding:15%;
+  cursor:pointer;padding:12%;
   box-shadow:0 4px 14px rgba(0,0,0,.18), 0 0 0 2px rgba(0,0,0,.04);
-  animation:pop .35s cubic-bezier(.36,1.56,.64,1);
 }
-.sticker-slot.filled img{width:100%;height:100%;object-fit:contain}
+.sticker-slot.filled img{width:100%;height:100%;transform:rotate(-8deg);display:block}
 .sticker-slot.filled:active{transform:scale(.88)}
-@keyframes pop{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+.sticker-slot.pop-anim{animation:pop .4s cubic-bezier(.36,1.56,.64,1)}
+@keyframes pop{0%{transform:scale(0) rotate(-10deg)}50%{transform:scale(1.25) rotate(4deg)}100%{transform:scale(1) rotate(0)}}
 
 .completion-banner{
   display:none;text-align:center;padding:16px 12px;
@@ -476,9 +476,9 @@ var toyRules = [
 ];
 
 var THEME_STICKERS = {
-  strawberry: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><ellipse cx="50" cy="58" rx="30" ry="35" fill="#e53935"/><ellipse cx="50" cy="58" rx="30" ry="35" fill="url(#sg)"/><defs><radialGradient id="sg" cx="40%" cy="30%"><stop offset="0%" stop-color="#ff6659"/><stop offset="100%" stop-color="#c62828"/></radialGradient></defs><g fill="#ffe082"><circle cx="38" cy="48" r="2.2"/><circle cx="50" cy="42" r="2.2"/><circle cx="62" cy="48" r="2.2"/><circle cx="35" cy="62" r="2.2"/><circle cx="50" cy="58" r="2.2"/><circle cx="65" cy="62" r="2.2"/><circle cx="42" cy="74" r="2.2"/><circle cx="58" cy="74" r="2.2"/><circle cx="50" cy="85" r="2"/></g><path d="M50 28c-6-10-18-8-16 2 1 5 8 8 16 12 8-4 15-7 16-12 2-10-10-12-16-2z" fill="#4caf50"/><path d="M50 28c-3-5-8-6-10-2s0 8 10 14" fill="#66bb6a" opacity=".6"/></svg>',
-  grape: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="gg" cx="35%" cy="30%"><stop offset="0%" stop-color="#ce93d8"/><stop offset="100%" stop-color="#6a1b9a"/></radialGradient></defs><circle cx="50" cy="35" r="12" fill="url(#gg)"/><circle cx="38" cy="48" r="12" fill="url(#gg)"/><circle cx="62" cy="48" r="12" fill="url(#gg)"/><circle cx="32" cy="63" r="12" fill="url(#gg)"/><circle cx="50" cy="63" r="12" fill="url(#gg)"/><circle cx="68" cy="63" r="12" fill="url(#gg)"/><circle cx="40" cy="78" r="12" fill="url(#gg)"/><circle cx="60" cy="78" r="12" fill="url(#gg)"/><circle cx="50" cy="90" r="10" fill="url(#gg)"/><g opacity=".4" fill="#fff"><circle cx="45" cy="31" r="3"/><circle cx="33" cy="44" r="3"/><circle cx="57" cy="44" r="3"/><circle cx="27" cy="59" r="3"/><circle cx="45" cy="59" r="3"/><circle cx="63" cy="59" r="3"/><circle cx="35" cy="74" r="3"/><circle cx="55" cy="74" r="3"/></g><path d="M50 12c0 0-2 8-2 16" stroke="#4a7c3f" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M48 18c6-6 14-4 16 0" stroke="#4caf50" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>',
-  apple: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ag" cx="35%" cy="25%"><stop offset="0%" stop-color="#ef5350"/><stop offset="100%" stop-color="#b71c1c"/></radialGradient></defs><path d="M50 30c-20-8-38 8-35 30 3 22 18 32 35 35 17-3 32-13 35-35 3-22-15-38-35-30z" fill="url(#ag)"/><path d="M50 30c-10-4-20 0-25 10 8-6 18-6 25-2z" fill="#ff8a80" opacity=".5"/><ellipse cx="50" cy="88" rx="8" ry="3" fill="#a64b00" opacity=".25"/><path d="M50 12c0 0-1 8-1 18" stroke="#5d4037" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M49 20c5-8 14-8 18-2" stroke="#4caf50" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M52 18c-6-6-12-4-14 0" stroke="#66bb6a" stroke-width="2" fill="none" stroke-linecap="round"/></svg>'
+  strawberry: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f353.svg',
+  grape: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f347.svg',
+  apple: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f34e.svg'
 };
 
 function saveLocal() {
@@ -644,10 +644,12 @@ function deleteChild(id, e) {
   if (activeChildId === id) activeChildId = children.length ? children[0].id : null;
   persist(); renderAll();
 }
+var lastToggledIndex = -1;
 function toggleSticker(index) {
   var child = children.find(function(c){ return c.id === activeChildId; });
   if (!child) return;
   child.stickers[index] = !child.stickers[index];
+  lastToggledIndex = child.stickers[index] ? index : -1;
   persist(); renderBoard();
 }
 function resetStickers() {
@@ -709,7 +711,10 @@ function renderBoard() {
   child.stickers.forEach(function(done, i) {
     var slot = document.createElement('div');
     slot.className = 'sticker-slot' + (done ? ' filled' : '');
-    if (done) { slot.innerHTML = getStickerSVG(child.theme); } else { slot.textContent = i + 1; }
+    if (done) {
+      slot.innerHTML = '<img src="' + getStickerSVG(child.theme) + '" alt="sticker">';
+      if (i === lastToggledIndex) { slot.classList.add('pop-anim'); lastToggledIndex = -1; }
+    } else { slot.textContent = i + 1; }
     slot.onclick = function() { toggleSticker(i); };
     grid.appendChild(slot);
   });
