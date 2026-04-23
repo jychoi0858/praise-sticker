@@ -698,7 +698,7 @@ function toggleSticker(index) {
   if (!child) return;
   child.stickers[index] = !child.stickers[index];
   lastToggledIndex = child.stickers[index] ? index : -1;
-  persist(); renderBoard();
+  persist(); renderBoard(); renderChildBar();
 }
 function resetStickers() {
   var child = children.find(function(c){ return c.id === activeChildId; });
