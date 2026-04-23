@@ -113,11 +113,10 @@ body{
 }
 .sticker-slot:active:not(.filled){transform:scale(.92)}
 .sticker-slot.filled{
-  border:4px solid #fff;background:#fff;
-  cursor:pointer;padding:12%;
-  box-shadow:0 4px 14px rgba(0,0,0,.18), 0 0 0 2px rgba(0,0,0,.04);
+  border:3px solid rgba(255,255,255,.6);background:none;
+  cursor:pointer;padding:0;
+  font-size:2.2rem;line-height:1;transform:rotate(-8deg);
 }
-.sticker-slot.filled{font-size:2rem;line-height:1;transform:rotate(-8deg)}
 .sticker-slot.filled:active{transform:scale(.88)}
 .sticker-slot.pop-anim{animation:pop .4s cubic-bezier(.36,1.56,.64,1)}
 @keyframes pop{0%{transform:scale(0) rotate(-10deg)}50%{transform:scale(1.25) rotate(4deg)}100%{transform:scale(1) rotate(0)}}
@@ -457,7 +456,7 @@ body{
     <div class="modal-handle"></div>
     <h2>아이 등록하기</h2>
     <label>이름</label>
-    <input type="text" id="inputName" placeholder="예: 우진이/아진이" maxlength="10" enterkeyhint="next">
+    <input type="text" id="inputName" placeholder="예: 하은이" maxlength="10" enterkeyhint="next">
     <label>스티커 총 개수</label>
     <input type="number" id="inputCount" value="20" min="1" max="50" inputmode="numeric" enterkeyhint="done">
     <label>배경 테마</label>
