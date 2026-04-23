@@ -107,16 +107,16 @@ body{
   display:flex;align-items:center;justify-content:center;
   font-size:1rem;font-weight:700;cursor:pointer;
   transition:transform .15s ease, background .15s ease;
-  position:relative;border:3px solid rgba(255,255,255,.75);
-  background:rgba(255,255,255,.7);color:rgba(0,0,0,.4);
+  position:relative;border:3px solid rgba(255,255,255,.85);
+  background:rgba(255,255,255,.85);color:rgba(0,0,0,.45);
   user-select:none;-webkit-user-select:none;
   box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
-.sticker-slot:active:not(.filled){transform:scale(.92);background:rgba(255,255,255,.9)}
+.sticker-slot:active:not(.filled){transform:scale(.92);background:#fff}
 .sticker-slot.filled{
-  border-color:transparent;background:rgba(255,255,255,.55);
+  border:3px solid rgba(255,255,255,.9);background:#fff;
   cursor:pointer;font-size:1.9rem;
-  box-shadow:0 3px 12px rgba(0,0,0,.12);
+  box-shadow:0 3px 12px rgba(0,0,0,.1);
   animation:pop .35s cubic-bezier(.36,1.56,.64,1);
 }
 .sticker-slot.filled:active{transform:scale(.88)}
@@ -132,19 +132,6 @@ body{
 
 /* ── 샵 영역 ── */
 .shop-area{position:relative;z-index:1;margin-top:20px}
-.shop-tabs{display:flex;gap:0;border-radius:12px 12px 0 0;overflow:hidden}
-.shop-tab{
-  flex:1;padding:12px 8px;text-align:center;
-  font-size:.85rem;font-weight:700;cursor:pointer;
-  border:none;font-family:inherit;transition:all .15s;
-  min-height:44px;
-}
-.shop-tab.tab-game{background:#e8f4ff;color:#5b9bd5}
-.shop-tab.tab-game.active{background:#5b9bd5;color:#fff}
-.shop-tab.tab-toy{background:#fff0e6;color:#e8855a}
-.shop-tab.tab-toy.active{background:#e8855a;color:#fff}
-.shop-tab:active{transform:scale(.97)}
-
 .shop-body{
   background:#fff;border-radius:0 0 14px 14px;
   padding:14px;display:flex;gap:10px;overflow-x:auto;
@@ -242,6 +229,17 @@ body{
 .theme-option:active{transform:scale(.95)}
 .theme-option.selected{border-color:#ff6b6b;box-shadow:0 3px 14px rgba(255,107,107,.3);background:#fff8f6}
 .theme-option span{display:block;font-size:.75rem;margin-top:6px;font-weight:600;color:#888}
+.reward-type-options{display:flex;gap:10px;margin-top:10px}
+.reward-type-opt{
+  flex:1;text-align:center;padding:14px 8px;border-radius:16px;
+  border:3px solid #e0d5c8;cursor:pointer;transition:all .15s;
+  font-size:1.5rem;min-height:70px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.reward-type-opt:active{transform:scale(.95)}
+.reward-type-opt.selected{border-color:#5b9bd5;box-shadow:0 3px 14px rgba(91,155,213,.3);background:#f0f7ff}
+.reward-type-opt[data-reward="toy"].selected{border-color:#e8855a;box-shadow:0 3px 14px rgba(232,133,90,.3);background:#fff5ef}
+.reward-type-opt span{display:block;font-size:.75rem;margin-top:6px;font-weight:600;color:#888}
 .modal-btns{display:flex;gap:10px;margin-top:24px}
 .modal-btns button{
   flex:1;padding:16px;border-radius:16px;border:none;
@@ -427,6 +425,15 @@ body{
         🍎<span>사과</span>
       </div>
     </div>
+    <label>보상 타입</label>
+    <div class="reward-type-options">
+      <div class="reward-type-opt selected" data-reward="game" onclick="selectRewardType(this)">
+        🎮<span>게임시간</span>
+      </div>
+      <div class="reward-type-opt" data-reward="toy" onclick="selectRewardType(this)">
+        🧸<span>장난감</span>
+      </div>
+    </div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal()">취소</button>
       <button class="btn-save" onclick="saveChild()">등록하기</button>
@@ -457,7 +464,7 @@ if (!useFirebase) document.getElementById('firebaseStatus').classList.add('show'
 var children = [];
 var activeChildId = null;
 var selectedTheme = 'strawberry';
-var activeShopTab = 'game';
+var selectedRewardType = 'game';
 
 var gameRules = [
   { stickers: 10, minutes: 15 },
@@ -598,6 +605,9 @@ function openModal() {
   document.querySelectorAll('.theme-option').forEach(function(el){ el.classList.remove('selected'); });
   document.querySelector('[data-theme="strawberry"]').classList.add('selected');
   selectedTheme = 'strawberry';
+  document.querySelectorAll('.reward-type-opt').forEach(function(el){ el.classList.remove('selected'); });
+  document.querySelector('[data-reward="game"]').classList.add('selected');
+  selectedRewardType = 'game';
   document.getElementById('modalOverlay').classList.add('show');
   document.body.style.overflow = 'hidden';
   setTimeout(function(){ document.getElementById('inputName').focus(); }, 300);
@@ -611,13 +621,18 @@ function selectTheme(el) {
   el.classList.add('selected');
   selectedTheme = el.dataset.theme;
 }
+function selectRewardType(el) {
+  document.querySelectorAll('.reward-type-opt').forEach(function(o){ o.classList.remove('selected'); });
+  el.classList.add('selected');
+  selectedRewardType = el.dataset.reward;
+}
 function saveChild() {
   var name = document.getElementById('inputName').value.trim();
   var count = parseInt(document.getElementById('inputCount').value) || 20;
   if (!name) { alert('이름을 입력해주세요!'); return; }
   if (count < 1 || count > 50) { alert('스티커 개수는 1~50 사이로 해주세요!'); return; }
   var c = Math.min(Math.max(count, 1), 50);
-  var child = { id: uid(), name: name, count: c, theme: selectedTheme, stickers: new Array(c).fill(false) };
+  var child = { id: uid(), name: name, count: c, theme: selectedTheme, rewardType: selectedRewardType, stickers: new Array(c).fill(false) };
   children.push(child);
   activeChildId = child.id;
   persist(); closeModal(); renderAll();
@@ -703,59 +718,44 @@ function renderBoard() {
   renderShop(filled);
 }
 
-function switchShopTab(tab) {
-  activeShopTab = tab;
-  var child = children.find(function(c){ return c.id === activeChildId; });
-  if (child) {
-    var filled = child.stickers.filter(Boolean).length;
-    renderShop(filled);
-  }
-}
-
 function renderShop(filled) {
   var area = document.getElementById('shopArea');
-  var hasGame = gameRules.length > 0;
-  var hasToy = toyRules.length > 0;
-  if (!hasGame && !hasToy) { area.style.display = 'none'; return; }
+  var child = children.find(function(c){ return c.id === activeChildId; });
+  if (!child) return;
+  var type = child.rewardType || 'game';
+  var rules = type === 'game' ? gameRules : toyRules;
+  if (!rules.length) { area.style.display = 'none'; return; }
   area.style.display = 'block';
 
-  var html = '<div class="shop-tabs">';
-  if (hasGame) html += '<button class="shop-tab tab-game' + (activeShopTab === 'game' ? ' active' : '') + '" onclick="switchShopTab(\'game\')">🎮 게임시간</button>';
-  if (hasToy) html += '<button class="shop-tab tab-toy' + (activeShopTab === 'toy' ? ' active' : '') + '" onclick="switchShopTab(\'toy\')">🧸 장난감</button>';
-  html += '</div><div class="shop-body">';
+  var isGame = type === 'game';
+  var headerBg = isGame ? 'background:#5b9bd5;color:#fff' : 'background:#e8855a;color:#fff';
+  var headerText = isGame ? '🎮 게임시간 교환소' : '🧸 장난감 교환소';
+  var thumbClass = isGame ? 'game-bg' : 'toy-bg';
+  var emoji = isGame ? '🎮' : '🧸';
 
-  if (activeShopTab === 'game' && hasGame) {
-    var sorted = gameRules.slice().sort(function(a,b){ return a.stickers - b.stickers; });
-    sorted.forEach(function(rule) {
-      var earned = filled >= rule.stickers;
-      var remaining = earned ? 0 : rule.stickers - filled;
-      html += '<div class="shop-item ' + (earned ? 'earned' : 'locked') + '">' +
-        '<div class="shop-thumb game-bg">🎮' +
-          '<span class="shop-thumb-badge">' + (earned ? 'READY' : remaining + '개 더') + '</span>' +
-        '</div>' +
-        '<div class="shop-info"><div class="item-name">게임시간</div><div class="item-value">' + rule.minutes + '분</div></div>' +
-        '<div class="shop-cost"><span class="coin">⭐</span> 스티커 ' + rule.stickers + '개</div>' +
-        '<button class="shop-btn">' + (earned ? '교환하기' : '스티커 부족') + '</button></div>';
-    });
-  } else if (activeShopTab === 'toy' && hasToy) {
-    var sorted = toyRules.slice().sort(function(a,b){ return a.stickers - b.stickers; });
-    sorted.forEach(function(rule) {
-      var earned = filled >= rule.stickers;
-      var remaining = earned ? 0 : rule.stickers - filled;
-      var wonStr = rule.won >= 10000 ? (rule.won / 10000) + '만원' : rule.won.toLocaleString() + '원';
-      html += '<div class="shop-item ' + (earned ? 'earned' : 'locked') + '">' +
-        '<div class="shop-thumb toy-bg">🧸' +
-          '<span class="shop-thumb-badge">' + (earned ? 'READY' : remaining + '개 더') + '</span>' +
-        '</div>' +
-        '<div class="shop-info"><div class="item-name">장난감 금액</div><div class="item-value">' + wonStr + '</div></div>' +
-        '<div class="shop-cost"><span class="coin">⭐</span> 스티커 ' + rule.stickers + '개</div>' +
-        '<button class="shop-btn">' + (earned ? '교환하기' : '스티커 부족') + '</button></div>';
-    });
-  } else {
-    if (hasGame && !hasToy) activeShopTab = 'game';
-    else if (hasToy) activeShopTab = 'toy';
-  }
+  var html = '<div style="text-align:center;padding:10px;font-size:.9rem;font-weight:800;border-radius:14px 14px 0 0;letter-spacing:.02em;' + headerBg + '">' + headerText + '</div>';
+  html += '<div class="shop-body" style="border-top:none">';
 
+  var sorted = rules.slice().sort(function(a,b){ return a.stickers - b.stickers; });
+  sorted.forEach(function(rule) {
+    var earned = filled >= rule.stickers;
+    var remaining = earned ? 0 : rule.stickers - filled;
+    var valueLabel, valueStr;
+    if (isGame) {
+      valueLabel = '게임시간';
+      valueStr = rule.minutes + '분';
+    } else {
+      valueLabel = '장난감 금액';
+      valueStr = rule.won >= 10000 ? (rule.won / 10000) + '만원' : rule.won.toLocaleString() + '원';
+    }
+    html += '<div class="shop-item ' + (earned ? 'earned' : 'locked') + '">' +
+      '<div class="shop-thumb ' + thumbClass + '">' + emoji +
+        '<span class="shop-thumb-badge">' + (earned ? 'READY' : remaining + '개 더') + '</span>' +
+      '</div>' +
+      '<div class="shop-info"><div class="item-name">' + valueLabel + '</div><div class="item-value">' + valueStr + '</div></div>' +
+      '<div class="shop-cost"><span class="coin">⭐</span> 스티커 ' + rule.stickers + '개</div>' +
+      '<button class="shop-btn">' + (earned ? '교환하기' : '스티커 부족') + '</button></div>';
+  });
   html += '</div>';
   area.innerHTML = html;
 }
