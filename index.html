@@ -182,6 +182,52 @@ body{
 .shop-item.earned .shop-btn:active{transform:scale(.95)}
 .shop-item.locked .shop-btn{background:#eee;color:#bbb;cursor:default}
 
+/* ── 사용권 티켓 ── */
+.tickets-area{position:relative;z-index:1;margin-top:20px}
+.tickets-header{
+  text-align:center;padding:10px;font-size:.9rem;font-weight:800;
+  border-radius:14px 14px 0 0;letter-spacing:.02em;
+  background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;
+}
+.tickets-body{
+  background:#fff;border-radius:0 0 14px 14px;
+  padding:14px;display:flex;flex-direction:column;gap:10px;
+  border:2px solid #f0ebe4;border-top:none;
+}
+.ticket{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;border-radius:14px;
+  border:2px solid #e8e0f0;background:linear-gradient(135deg,#fafafe,#f0ecf8);
+  position:relative;overflow:hidden;transition:all .15s;
+}
+.ticket::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:5px;
+  background:linear-gradient(180deg,#667eea,#764ba2);
+}
+.ticket.used{opacity:.5;border-color:#ddd;background:#f8f8f8}
+.ticket.used::before{background:#ccc}
+.ticket-icon{font-size:1.8rem;flex-shrink:0}
+.ticket-info{flex:1;min-width:0}
+.ticket-value{font-size:1.05rem;font-weight:800;color:#3a2e26}
+.ticket-date{font-size:.7rem;color:#aaa;margin-top:2px}
+.ticket-actions{display:flex;gap:6px;flex-shrink:0}
+.ticket-btn{
+  padding:8px 14px;border-radius:10px;border:none;
+  font-size:.75rem;font-weight:700;cursor:pointer;
+  font-family:inherit;transition:all .15s;min-height:36px;
+}
+.ticket-btn.use{
+  background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;
+  box-shadow:0 2px 8px rgba(102,126,234,.3);
+}
+.ticket-btn.use:active{transform:scale(.95)}
+.ticket-btn.used-label{background:#eee;color:#aaa;cursor:default}
+.ticket-btn.delete{background:#fee;color:#e44;font-size:.7rem;padding:8px 10px}
+.ticket-btn.delete:active{background:#fdd}
+.tickets-empty{text-align:center;padding:16px;color:#ccc;font-size:.85rem}
+.ticket-pop{animation:ticketAppear .5s cubic-bezier(.36,1.56,.64,1)}
+@keyframes ticketAppear{0%{transform:translateX(60px);opacity:0}100%{transform:translateX(0);opacity:1}}
+
 /* ── Action Buttons ── */
 .board-actions{display:flex;gap:10px;justify-content:center;margin-top:16px;padding:0 8px}
 .btn-action{
@@ -375,6 +421,7 @@ body{
         <div class="sticker-grid" id="stickerGrid"></div>
         <div class="completion-banner" id="completionBanner">🎉 축하해요! 스티커를 모두 모았어요! 🎉</div>
         <div class="shop-area" id="shopArea"></div>
+        <div class="tickets-area" id="ticketsArea"></div>
       </div>
       <div class="board-actions">
         <button class="btn-action" onclick="resetStickers()">초기화</button>
@@ -632,7 +679,7 @@ function saveChild() {
   if (!name) { alert('이름을 입력해주세요!'); return; }
   if (count < 1 || count > 50) { alert('스티커 개수는 1~50 사이로 해주세요!'); return; }
   var c = Math.min(Math.max(count, 1), 50);
-  var child = { id: uid(), name: name, count: c, theme: selectedTheme, rewardType: selectedRewardType, stickers: new Array(c).fill(false) };
+  var child = { id: uid(), name: name, count: c, theme: selectedTheme, rewardType: selectedRewardType, stickers: new Array(c).fill(false), rewards: [] };
   children.push(child);
   activeChildId = child.id;
   persist(); closeModal(); renderAll();
@@ -660,6 +707,98 @@ function resetStickers() {
   persist(); renderBoard();
 }
 function getStickerSVG(theme) { return THEME_STICKERS[theme] || THEME_STICKERS.strawberry; }
+
+// ── 교환 시스템 ──
+function exchangeReward(stickersNeeded, type, value) {
+  var child = children.find(function(c){ return c.id === activeChildId; });
+  if (!child) return;
+  var filled = child.stickers.filter(Boolean).length;
+  if (filled < stickersNeeded) return;
+
+  var label = type === 'game' ? (value + '분 게임시간') : (value >= 10000 ? (value/10000) + '만원' : value.toLocaleString() + '원');
+  if (!confirm('스티커 ' + stickersNeeded + '개를 사용해서\n' + label + ' 사용권으로 교환할까요?')) return;
+
+  // 뒤에서부터 스티커 제거
+  var removed = 0;
+  for (var i = child.stickers.length - 1; i >= 0 && removed < stickersNeeded; i--) {
+    if (child.stickers[i]) { child.stickers[i] = false; removed++; }
+  }
+
+  // 사용권 추가
+  if (!child.rewards) child.rewards = [];
+  var now = new Date();
+  var dateStr = now.getFullYear() + '.' + (now.getMonth()+1) + '.' + now.getDate() + ' ' +
+    String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  child.rewards.push({
+    type: type,
+    value: value,
+    stickersUsed: stickersNeeded,
+    date: dateStr,
+    used: false
+  });
+  lastNewTicket = child.rewards.length - 1;
+  lastToggledIndex = -1;
+  persist(); renderBoard();
+}
+
+function useTicket(idx) {
+  var child = children.find(function(c){ return c.id === activeChildId; });
+  if (!child || !child.rewards || !child.rewards[idx]) return;
+  if (child.rewards[idx].used) return;
+  child.rewards[idx].used = true;
+  persist(); renderTickets();
+}
+
+function deleteTicket(idx) {
+  var child = children.find(function(c){ return c.id === activeChildId; });
+  if (!child || !child.rewards) return;
+  if (!confirm('이 사용권을 삭제할까요?')) return;
+  child.rewards.splice(idx, 1);
+  persist(); renderTickets();
+}
+
+var lastNewTicket = -1;
+function renderTickets() {
+  var area = document.getElementById('ticketsArea');
+  var child = children.find(function(c){ return c.id === activeChildId; });
+  if (!child || !child.rewards || !child.rewards.length) {
+    area.style.display = 'none'; return;
+  }
+  area.style.display = 'block';
+
+  var isGame = (child.rewardType || 'game') === 'game';
+  var html = '<div class="tickets-header">' + (isGame ? '🎟 게임 사용권' : '🎟 장난감 사용권') + '</div>';
+  html += '<div class="tickets-body">';
+
+  child.rewards.forEach(function(r, i) {
+    var icon = r.type === 'game' ? '🎮' : '🧸';
+    var valueStr;
+    if (r.type === 'game') {
+      valueStr = r.value + '분 게임시간';
+    } else {
+      valueStr = r.value >= 10000 ? (r.value/10000) + '만원 장난감' : r.value.toLocaleString() + '원 장난감';
+    }
+    var isNew = (i === child.rewards.length - 1 && i === lastNewTicket);
+    html += '<div class="ticket' + (r.used ? ' used' : '') + (isNew ? ' ticket-pop' : '') + '">' +
+      '<div class="ticket-icon">' + icon + '</div>' +
+      '<div class="ticket-info">' +
+        '<div class="ticket-value">' + valueStr + '</div>' +
+        '<div class="ticket-date">' + r.date + ' | 스티커 ' + r.stickersUsed + '개 사용</div>' +
+      '</div>' +
+      '<div class="ticket-actions">';
+    if (!r.used) {
+      html += '<button class="ticket-btn use" onclick="useTicket(' + i + ')">사용완료</button>';
+    } else {
+      html += '<span class="ticket-btn used-label">사용됨</span>';
+    }
+    html += '<button class="ticket-btn delete" onclick="deleteTicket(' + i + ')">✕</button>';
+    html += '</div></div>';
+  });
+
+  html += '</div>';
+  area.innerHTML = html;
+  lastNewTicket = -1;
+}
 
 // ── 렌더링 ──
 function renderAll() {
@@ -721,6 +860,7 @@ function renderBoard() {
 
   document.getElementById('completionBanner').classList.toggle('show', filled === child.count);
   renderShop(filled);
+  renderTickets();
 }
 
 function renderShop(filled) {
@@ -753,13 +893,15 @@ function renderShop(filled) {
       valueLabel = '장난감 금액';
       valueStr = rule.won >= 10000 ? (rule.won / 10000) + '만원' : rule.won.toLocaleString() + '원';
     }
+    var rewardVal = isGame ? rule.minutes : rule.won;
+    var btnAttr = earned ? ' onclick="exchangeReward(' + rule.stickers + ',\'' + type + '\',' + rewardVal + ')"' : ' disabled';
     html += '<div class="shop-item ' + (earned ? 'earned' : 'locked') + '">' +
       '<div class="shop-thumb ' + thumbClass + '">' + emoji +
         '<span class="shop-thumb-badge">' + (earned ? 'READY' : remaining + '개 더') + '</span>' +
       '</div>' +
       '<div class="shop-info"><div class="item-name">' + valueLabel + '</div><div class="item-value">' + valueStr + '</div></div>' +
       '<div class="shop-cost"><span class="coin">⭐</span> 스티커 ' + rule.stickers + '개</div>' +
-      '<button class="shop-btn">' + (earned ? '교환하기' : '스티커 부족') + '</button></div>';
+      '<button class="shop-btn"' + btnAttr + '>' + (earned ? '교환하기' : '스티커 부족') + '</button></div>';
   });
   html += '</div>';
   area.innerHTML = html;
