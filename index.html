@@ -132,14 +132,17 @@ body{
   font-size:1rem;font-weight:700;cursor:pointer;
   transition:transform .15s ease, background .15s ease;
   position:relative;
-  border:2.5px solid rgba(255,255,255,.55);
-  background:rgba(255,255,255,.4);backdrop-filter:blur(2px);
-  color:rgba(0,0,0,.3);user-select:none;-webkit-user-select:none;
+  border:3px solid rgba(255,255,255,.75);
+  background:rgba(255,255,255,.7);
+  color:rgba(0,0,0,.4);user-select:none;-webkit-user-select:none;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
-.sticker-slot:active:not(.filled){transform:scale(.92);background:rgba(255,255,255,.7)}
+.sticker-slot:active:not(.filled){transform:scale(.92);background:rgba(255,255,255,.9)}
 .sticker-slot.filled{
-  border-color:transparent;background:transparent;
+  border-color:transparent;
+  background:rgba(255,255,255,.55);
   cursor:pointer;font-size:1.9rem;
+  box-shadow:0 3px 12px rgba(0,0,0,.12);
   animation:pop .35s cubic-bezier(.36,1.56,.64,1);
 }
 .sticker-slot.filled:active{transform:scale(.88)}
@@ -154,33 +157,71 @@ body{
 }
 .completion-banner.show{display:block}
 
-/* ── 게임시간 보상 카드 ── */
-.reward-card{
-  position:relative;z-index:1;
-  margin-top:16px;padding:16px;
-  background:rgba(255,255,255,.5);backdrop-filter:blur(4px);
-  border-radius:16px;border:2px solid rgba(255,255,255,.6);
+/* ── 게임시간 보상 - 로블록스 스타일 ── */
+.reward-shop{
+  position:relative;z-index:1;margin-top:20px;
 }
-.reward-title{font-size:.85rem;font-weight:700;margin-bottom:12px;text-align:center;opacity:.8}
-.reward-list{display:flex;flex-direction:column;gap:8px}
-.reward-item{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 14px;border-radius:12px;
-  background:rgba(255,255,255,.5);font-size:.85rem;
-  transition:all .2s;
+.shop-header{
+  text-align:center;padding:10px;
+  font-size:.9rem;font-weight:800;
+  color:#fff;letter-spacing:.02em;
+  background:linear-gradient(135deg,#393b49,#2c2d3a);
+  border-radius:14px 14px 0 0;
+  text-transform:uppercase;
 }
-.reward-item.earned{background:rgba(255,255,255,.85);font-weight:700}
-.reward-item.earned .reward-badge{display:inline-block}
-.reward-item .reward-left{display:flex;align-items:center;gap:8px}
-.reward-badge{
-  display:none;font-size:.7rem;
-  padding:3px 10px;border-radius:20px;
-  font-weight:700;white-space:nowrap;
+.shop-body{
+  background:#393b49;border-radius:0 0 14px 14px;
+  padding:12px;
+  display:flex;gap:10px;overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
 }
-.theme-strawberry .reward-badge{background:#ff6b6b;color:#fff}
-.theme-grape .reward-badge{background:#a370cc;color:#fff}
-.theme-apple .reward-badge{background:#5cb85c;color:#fff}
-.reward-time{font-weight:700;font-size:.95rem}
+.shop-body::-webkit-scrollbar{display:none}
+.shop-item{
+  flex-shrink:0;width:130px;
+  background:#2c2d3a;border-radius:12px;
+  overflow:hidden;transition:all .15s;
+  border:2px solid #3e4052;
+  display:flex;flex-direction:column;
+}
+.shop-item:active{transform:scale(.96)}
+.shop-item.earned{border-color:#00b06f}
+.shop-item.locked{opacity:.6}
+.shop-thumb{
+  height:90px;display:flex;align-items:center;justify-content:center;
+  font-size:2.8rem;position:relative;
+  background:linear-gradient(145deg,#3e4052,#32334a);
+}
+.shop-thumb-badge{
+  position:absolute;top:6px;right:6px;
+  font-size:.6rem;font-weight:800;
+  padding:2px 8px;border-radius:8px;
+  text-transform:uppercase;
+}
+.shop-item.earned .shop-thumb-badge{background:#00b06f;color:#fff}
+.shop-item.locked .shop-thumb-badge{background:#666;color:#aaa}
+.shop-info{padding:10px 10px 0;text-align:center}
+.shop-info .item-name{font-size:.78rem;color:#ccc;font-weight:600;margin-bottom:2px}
+.shop-info .item-time{font-size:1.1rem;font-weight:800;color:#fff}
+.shop-btn{
+  margin:8px;padding:10px 0;border:none;border-radius:8px;
+  font-size:.8rem;font-weight:800;cursor:pointer;
+  font-family:inherit;text-transform:uppercase;
+  transition:all .15s;min-height:38px;
+}
+.shop-item.earned .shop-btn{
+  background:linear-gradient(135deg,#00b06f,#00d984);color:#fff;
+  box-shadow:0 3px 10px rgba(0,176,111,.3);
+}
+.shop-item.earned .shop-btn:active{transform:scale(.95);box-shadow:0 1px 4px rgba(0,176,111,.2)}
+.shop-item.locked .shop-btn{
+  background:#3e4052;color:#888;cursor:default;
+}
+.shop-cost{
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  font-size:.7rem;color:#aaa;padding-bottom:4px;
+}
+.shop-cost .coin{color:#ffd700;font-size:.85rem}
 
 /* ── Action Buttons ── */
 .board-actions{
@@ -379,7 +420,7 @@ body{
         </div>
         <div class="sticker-grid" id="stickerGrid"></div>
         <div class="completion-banner" id="completionBanner">🎉 축하해요! 스티커를 모두 모았어요! 🎉</div>
-        <div class="reward-card" id="rewardCard"></div>
+        <div class="reward-shop" id="rewardShop"></div>
       </div>
       <div class="board-actions">
         <button class="btn-action" onclick="resetStickers()">초기화</button>
@@ -699,31 +740,35 @@ function renderBoard() {
   banner.classList.toggle('show', filled === child.count);
 
   // 게임시간 보상 표시
-  renderRewardCard(filled);
+  renderRewardShop(filled);
 }
 
-function renderRewardCard(filled) {
-  var card = document.getElementById('rewardCard');
-  if (!rewardRules.length) { card.style.display = 'none'; return; }
-  card.style.display = 'block';
+function renderRewardShop(filled) {
+  var shop = document.getElementById('rewardShop');
+  if (!rewardRules.length) { shop.style.display = 'none'; return; }
+  shop.style.display = 'block';
 
-  var html = '<div class="reward-title">🎮 게임시간 보상</div><div class="reward-list">';
   var sorted = rewardRules.slice().sort(function(a,b){ return a.stickers - b.stickers; });
+  var html = '<div class="shop-header">🎮 GAME TIME SHOP</div><div class="shop-body">';
   sorted.forEach(function(rule) {
     var earned = filled >= rule.stickers;
-    html += '<div class="reward-item' + (earned ? ' earned' : '') + '">' +
-      '<div class="reward-left">' +
-        '<span>' + (earned ? '✅' : '⬜') + '</span>' +
-        '<span>스티커 ' + rule.stickers + '개</span>' +
+    var status = earned ? 'earned' : 'locked';
+    var remaining = earned ? 0 : rule.stickers - filled;
+    html += '<div class="shop-item ' + status + '">' +
+      '<div class="shop-thumb">' +
+        '🎮' +
+        '<span class="shop-thumb-badge">' + (earned ? 'READY' : remaining + ' more') + '</span>' +
       '</div>' +
-      '<div style="display:flex;align-items:center;gap:8px">' +
-        '<span class="reward-badge">' + (earned ? '교환 가능!' : '') + '</span>' +
-        '<span class="reward-time">' + rule.minutes + '분</span>' +
+      '<div class="shop-info">' +
+        '<div class="item-name">게임시간</div>' +
+        '<div class="item-time">' + rule.minutes + '분</div>' +
       '</div>' +
+      '<div class="shop-cost"><span class="coin">⭐</span> ' + rule.stickers + '개</div>' +
+      '<button class="shop-btn">' + (earned ? '교환하기' : '스티커 부족') + '</button>' +
     '</div>';
   });
   html += '</div>';
-  card.innerHTML = html;
+  shop.innerHTML = html;
 }
 
 // 모달 바깥 터치 닫기
