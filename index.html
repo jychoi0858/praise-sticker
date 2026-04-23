@@ -19,50 +19,39 @@ body{
   min-height:100vh;min-height:100dvh;
   display:flex;flex-direction:column;align-items:center;
   background:#fef9f0;color:#3a2e26;
-  overscroll-behavior:none;
-  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;-webkit-font-smoothing:antialiased;
 }
 
 .app-header{
   width:100%;text-align:center;
   padding:max(env(safe-area-inset-top),20px) 16px 16px;
   background:linear-gradient(135deg,#ff6b6b,#ffa07a,#ffd93d);
-  color:#fff;
-  position:sticky;top:0;z-index:50;
+  color:#fff;position:sticky;top:0;z-index:50;
   box-shadow:0 2px 16px rgba(0,0,0,.1);
   display:flex;align-items:center;justify-content:center;
 }
 .app-header h1{font-size:1.6rem;font-weight:800;text-shadow:1px 1px 3px rgba(0,0,0,.12);letter-spacing:-.02em;flex:1}
-.app-header p{font-size:.85rem;opacity:.88;margin-top:2px;font-weight:400}
 .btn-settings{
   position:absolute;right:16px;
   width:40px;height:40px;border:none;background:rgba(255,255,255,.25);
   border-radius:50%;cursor:pointer;font-size:1.2rem;
-  display:flex;align-items:center;justify-content:center;
-  color:#fff;
+  display:flex;align-items:center;justify-content:center;color:#fff;
 }
 .btn-settings:active{background:rgba(255,255,255,.4);transform:scale(.92)}
 
-.container{
-  width:100%;max-width:520px;
-  padding:16px 16px max(env(safe-area-inset-bottom),20px);
-  flex:1;
-}
+.container{width:100%;max-width:520px;padding:16px 16px max(env(safe-area-inset-bottom),20px);flex:1}
 
 .child-bar{
   display:flex;flex-wrap:nowrap;gap:10px;
   overflow-x:auto;-webkit-overflow-scrolling:touch;
-  padding:12px 4px;margin:0 -4px;
-  scrollbar-width:none;
+  padding:12px 4px;margin:0 -4px;scrollbar-width:none;
 }
 .child-bar::-webkit-scrollbar{display:none}
 .child-tab{
-  flex-shrink:0;
-  padding:12px 20px;border-radius:30px;
+  flex-shrink:0;padding:12px 20px;border-radius:30px;
   border:2px solid #e0d5c8;background:#fff;
   cursor:pointer;font-size:.9rem;font-weight:600;
-  transition:all .15s ease;
-  display:flex;align-items:center;gap:6px;
+  transition:all .15s ease;display:flex;align-items:center;gap:6px;
   white-space:nowrap;min-height:48px;
 }
 .child-tab:active{transform:scale(.96)}
@@ -73,13 +62,11 @@ body{
 }
 .child-tab .delete-child{
   margin-left:4px;opacity:.5;font-size:.75rem;
-  width:24px;height:24px;
-  display:flex;align-items:center;justify-content:center;border-radius:50%;
+  width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:50%;
 }
 .child-tab .delete-child:active{opacity:1;background:rgba(0,0,0,.1)}
 .btn-add-child{
-  flex-shrink:0;
-  padding:12px 20px;border-radius:30px;
+  flex-shrink:0;padding:12px 20px;border-radius:30px;
   border:2px dashed #ccc;background:transparent;
   cursor:pointer;font-size:1rem;color:#aaa;
   transition:all .15s;white-space:nowrap;min-height:48px;
@@ -89,32 +76,22 @@ body{
 .board-wrapper{
   position:relative;border-radius:20px;
   padding:24px 16px 28px;margin:8px 0 20px;
-  overflow:hidden;
-  box-shadow:0 6px 24px rgba(0,0,0,.08);
+  overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.08);
 }
 .board-wrapper.theme-strawberry{background:linear-gradient(145deg,#ffe0e6,#ffb3c1,#ff8fa3)}
 .board-wrapper.theme-grape{background:linear-gradient(145deg,#e8d5f5,#c8a2e0,#a370cc)}
 .board-wrapper.theme-apple{background:linear-gradient(145deg,#d4f5d0,#a8e6a1,#7dd87d)}
-
 .board-wrapper::before{
-  content:'';position:absolute;inset:0;
-  opacity:.06;pointer-events:none;background-size:56px 56px;
+  content:'';position:absolute;inset:0;opacity:.06;pointer-events:none;background-size:56px 56px;
 }
 .board-wrapper.theme-strawberry::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Ctext x='10' y='40' font-size='30'%3E🍓%3C/text%3E%3C/svg%3E")}
 .board-wrapper.theme-grape::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Ctext x='10' y='40' font-size='30'%3E🍇%3C/text%3E%3C/svg%3E")}
 .board-wrapper.theme-apple::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Ctext x='10' y='40' font-size='30'%3E🍎%3C/text%3E%3C/svg%3E")}
 
-.board-child-name{
-  text-align:center;font-size:1.3rem;font-weight:800;
-  margin-bottom:4px;position:relative;z-index:1;letter-spacing:-.01em;
-}
+.board-child-name{text-align:center;font-size:1.3rem;font-weight:800;margin-bottom:4px;position:relative;z-index:1;letter-spacing:-.01em}
 .board-progress-wrap{text-align:center;margin-bottom:18px;position:relative;z-index:1}
 .board-progress-text{font-size:.8rem;opacity:.7;margin-bottom:8px;display:block}
-.progress-bar{
-  width:80%;max-width:280px;height:10px;
-  background:rgba(255,255,255,.4);border-radius:10px;
-  margin:0 auto;overflow:hidden;
-}
+.progress-bar{width:80%;max-width:280px;height:10px;background:rgba(255,255,255,.4);border-radius:10px;margin:0 auto;overflow:hidden}
 .progress-fill{height:100%;border-radius:10px;transition:width .4s cubic-bezier(.4,0,.2,1)}
 .theme-strawberry .progress-fill{background:linear-gradient(90deg,#ff6b6b,#ff4757)}
 .theme-grape .progress-fill{background:linear-gradient(90deg,#a370cc,#8854b4)}
@@ -125,22 +102,19 @@ body{
   gap:10px;position:relative;z-index:1;
   max-width:400px;margin:0 auto;padding:0 4px;
 }
-
 .sticker-slot{
   aspect-ratio:1;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   font-size:1rem;font-weight:700;cursor:pointer;
   transition:transform .15s ease, background .15s ease;
-  position:relative;
-  border:3px solid rgba(255,255,255,.75);
-  background:rgba(255,255,255,.7);
-  color:rgba(0,0,0,.4);user-select:none;-webkit-user-select:none;
+  position:relative;border:3px solid rgba(255,255,255,.75);
+  background:rgba(255,255,255,.7);color:rgba(0,0,0,.4);
+  user-select:none;-webkit-user-select:none;
   box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
 .sticker-slot:active:not(.filled){transform:scale(.92);background:rgba(255,255,255,.9)}
 .sticker-slot.filled{
-  border-color:transparent;
-  background:rgba(255,255,255,.55);
+  border-color:transparent;background:rgba(255,255,255,.55);
   cursor:pointer;font-size:1.9rem;
   box-shadow:0 3px 12px rgba(0,0,0,.12);
   animation:pop .35s cubic-bezier(.36,1.56,.64,1);
@@ -151,86 +125,80 @@ body{
 .completion-banner{
   display:none;text-align:center;padding:16px 12px;
   background:linear-gradient(135deg,#ffd700,#ffec80);
-  border-radius:14px;margin-top:16px;
-  font-size:1rem;font-weight:700;
+  border-radius:14px;margin-top:16px;font-size:1rem;font-weight:700;
   position:relative;z-index:1;animation:pop .5s ease;
 }
 .completion-banner.show{display:block}
 
-/* ── 게임시간 보상 - 로블록스 스타일 ── */
-.reward-shop{
-  position:relative;z-index:1;margin-top:20px;
+/* ── 샵 영역 ── */
+.shop-area{position:relative;z-index:1;margin-top:20px}
+.shop-tabs{display:flex;gap:0;border-radius:12px 12px 0 0;overflow:hidden}
+.shop-tab{
+  flex:1;padding:12px 8px;text-align:center;
+  font-size:.85rem;font-weight:700;cursor:pointer;
+  border:none;font-family:inherit;transition:all .15s;
+  min-height:44px;
 }
-.shop-header{
-  text-align:center;padding:10px;
-  font-size:.9rem;font-weight:800;
-  color:#fff;letter-spacing:.02em;
-  background:linear-gradient(135deg,#393b49,#2c2d3a);
-  border-radius:14px 14px 0 0;
-  text-transform:uppercase;
-}
+.shop-tab.tab-game{background:#e8f4ff;color:#5b9bd5}
+.shop-tab.tab-game.active{background:#5b9bd5;color:#fff}
+.shop-tab.tab-toy{background:#fff0e6;color:#e8855a}
+.shop-tab.tab-toy.active{background:#e8855a;color:#fff}
+.shop-tab:active{transform:scale(.97)}
+
 .shop-body{
-  background:#393b49;border-radius:0 0 14px 14px;
-  padding:12px;
-  display:flex;gap:10px;overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
+  background:#fff;border-radius:0 0 14px 14px;
+  padding:14px;display:flex;gap:10px;overflow-x:auto;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  border:2px solid #f0ebe4;border-top:none;
 }
 .shop-body::-webkit-scrollbar{display:none}
+
 .shop-item{
   flex-shrink:0;width:130px;
-  background:#2c2d3a;border-radius:12px;
+  background:#fafafa;border-radius:14px;
   overflow:hidden;transition:all .15s;
-  border:2px solid #3e4052;
-  display:flex;flex-direction:column;
+  border:2px solid #eee;display:flex;flex-direction:column;
 }
 .shop-item:active{transform:scale(.96)}
 .shop-item.earned{border-color:#00b06f}
-.shop-item.locked{opacity:.6}
+.shop-item.locked{opacity:.55}
 .shop-thumb{
-  height:90px;display:flex;align-items:center;justify-content:center;
-  font-size:2.8rem;position:relative;
-  background:linear-gradient(145deg,#3e4052,#32334a);
+  height:85px;display:flex;align-items:center;justify-content:center;
+  font-size:2.6rem;position:relative;
 }
+.shop-thumb.game-bg{background:linear-gradient(145deg,#e8f4ff,#d0e8ff)}
+.shop-thumb.toy-bg{background:linear-gradient(145deg,#fff0e6,#ffe0cc)}
 .shop-thumb-badge{
   position:absolute;top:6px;right:6px;
   font-size:.6rem;font-weight:800;
   padding:2px 8px;border-radius:8px;
-  text-transform:uppercase;
 }
 .shop-item.earned .shop-thumb-badge{background:#00b06f;color:#fff}
-.shop-item.locked .shop-thumb-badge{background:#666;color:#aaa}
-.shop-info{padding:10px 10px 0;text-align:center}
-.shop-info .item-name{font-size:.78rem;color:#ccc;font-weight:600;margin-bottom:2px}
-.shop-info .item-time{font-size:1.1rem;font-weight:800;color:#fff}
+.shop-item.locked .shop-thumb-badge{background:#ccc;color:#888}
+.shop-info{padding:8px 8px 0;text-align:center}
+.shop-info .item-name{font-size:.75rem;color:#999;font-weight:600;margin-bottom:2px}
+.shop-info .item-value{font-size:1.05rem;font-weight:800;color:#3a2e26}
+.shop-cost{
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  font-size:.72rem;color:#999;padding:4px 0;
+}
+.shop-cost .coin{font-size:.85rem}
 .shop-btn{
-  margin:8px;padding:10px 0;border:none;border-radius:8px;
-  font-size:.8rem;font-weight:800;cursor:pointer;
-  font-family:inherit;text-transform:uppercase;
-  transition:all .15s;min-height:38px;
+  margin:6px 8px 8px;padding:10px 0;border:none;border-radius:10px;
+  font-size:.8rem;font-weight:700;cursor:pointer;
+  font-family:inherit;transition:all .15s;min-height:38px;
 }
 .shop-item.earned .shop-btn{
   background:linear-gradient(135deg,#00b06f,#00d984);color:#fff;
-  box-shadow:0 3px 10px rgba(0,176,111,.3);
+  box-shadow:0 2px 8px rgba(0,176,111,.25);
 }
-.shop-item.earned .shop-btn:active{transform:scale(.95);box-shadow:0 1px 4px rgba(0,176,111,.2)}
-.shop-item.locked .shop-btn{
-  background:#3e4052;color:#888;cursor:default;
-}
-.shop-cost{
-  display:flex;align-items:center;justify-content:center;gap:4px;
-  font-size:.7rem;color:#aaa;padding-bottom:4px;
-}
-.shop-cost .coin{color:#ffd700;font-size:.85rem}
+.shop-item.earned .shop-btn:active{transform:scale(.95)}
+.shop-item.locked .shop-btn{background:#eee;color:#bbb;cursor:default}
 
 /* ── Action Buttons ── */
-.board-actions{
-  display:flex;gap:10px;justify-content:center;
-  margin-top:16px;padding:0 8px;
-}
+.board-actions{display:flex;gap:10px;justify-content:center;margin-top:16px;padding:0 8px}
 .btn-action{
-  flex:1;max-width:200px;
-  padding:14px 16px;border-radius:16px;
+  flex:1;max-width:200px;padding:14px 16px;border-radius:16px;
   border:2px solid #e0d5c8;background:#fff;
   cursor:pointer;font-size:.85rem;font-weight:600;
   color:#888;transition:all .15s;min-height:48px;
@@ -259,10 +227,8 @@ body{
 .modal label{display:block;font-weight:600;margin-bottom:8px;margin-top:18px;font-size:.85rem;color:#666}
 .modal input[type="text"],
 .modal input[type="number"]{
-  width:100%;padding:14px 16px;
-  border-radius:14px;border:2px solid #e0d5c8;
-  font-size:1rem;font-family:inherit;
-  outline:none;transition:border .2s;
+  width:100%;padding:14px 16px;border-radius:14px;border:2px solid #e0d5c8;
+  font-size:1rem;font-family:inherit;outline:none;transition:border .2s;
   min-height:48px;appearance:none;-webkit-appearance:none;
 }
 .modal input:focus{border-color:#ff8e53}
@@ -294,8 +260,7 @@ body{
 .settings-page{display:none;padding-bottom:40px}
 .settings-page.show{display:block}
 .settings-section{
-  background:#fff;border-radius:16px;
-  padding:20px;margin-bottom:16px;
+  background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;
   box-shadow:0 2px 12px rgba(0,0,0,.05);
 }
 .settings-section h3{font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
@@ -306,11 +271,9 @@ body{
 .reward-rule:last-child{border-bottom:none}
 .reward-rule label{font-size:.85rem;color:#666;white-space:nowrap;min-width:50px;font-weight:600}
 .reward-rule input{
-  width:70px;padding:10px 12px;
-  border-radius:12px;border:2px solid #e0d5c8;
+  width:70px;padding:10px 12px;border-radius:12px;border:2px solid #e0d5c8;
   font-size:.95rem;font-family:inherit;text-align:center;
-  outline:none;min-height:44px;
-  appearance:none;-webkit-appearance:none;
+  outline:none;min-height:44px;appearance:none;-webkit-appearance:none;
 }
 .reward-rule input:focus{border-color:#ff8e53}
 .reward-rule .arrow{font-size:1.2rem;color:#ccc}
@@ -358,30 +321,24 @@ body{
 
 @media(max-width:360px){
   .sticker-grid{grid-template-columns:repeat(4,1fr);gap:8px}
-  .sticker-slot{font-size:.85rem}
-  .sticker-slot.filled{font-size:1.5rem}
-  .app-header h1{font-size:1.3rem}
-  .board-child-name{font-size:1.1rem}
+  .sticker-slot{font-size:.85rem}.sticker-slot.filled{font-size:1.5rem}
+  .app-header h1{font-size:1.3rem}.board-child-name{font-size:1.1rem}
+  .shop-item{width:115px}
 }
 @media(min-width:361px) and (max-width:480px){
-  .sticker-grid{gap:10px}
-  .sticker-slot.filled{font-size:1.8rem}
+  .sticker-grid{gap:10px}.sticker-slot.filled{font-size:1.8rem}
 }
 @media(min-width:481px) and (max-width:768px){
   .container{max-width:560px;padding:20px 24px}
   .sticker-grid{gap:14px;max-width:440px}
-  .sticker-slot{font-size:1.1rem}
-  .sticker-slot.filled{font-size:2.2rem}
-  .board-wrapper{padding:28px 24px 32px}
-  .board-child-name{font-size:1.4rem}
+  .sticker-slot{font-size:1.1rem}.sticker-slot.filled{font-size:2.2rem}
+  .board-wrapper{padding:28px 24px 32px}.board-child-name{font-size:1.4rem}
 }
 @media(min-width:769px){
   .container{max-width:600px;padding:24px}
   .sticker-grid{gap:16px;max-width:480px}
-  .sticker-slot{font-size:1.15rem}
-  .sticker-slot.filled{font-size:2.4rem}
-  .board-wrapper{padding:32px 28px 36px;border-radius:24px}
-  .board-child-name{font-size:1.5rem}
+  .sticker-slot{font-size:1.15rem}.sticker-slot.filled{font-size:2.4rem}
+  .board-wrapper{padding:32px 28px 36px;border-radius:24px}.board-child-name{font-size:1.5rem}
   .modal{border-radius:24px;max-width:480px;align-self:center}
   .modal-overlay.show{align-items:center}
 }
@@ -399,7 +356,6 @@ body{
     Firebase가 연결되지 않았습니다. 로컬 저장 모드로 동작합니다.
   </div>
 
-  <!-- 메인 화면 -->
   <div id="mainPage">
     <div class="child-bar" id="childBar">
       <button class="btn-add-child" onclick="openModal()">+ 아이 등록</button>
@@ -420,7 +376,7 @@ body{
         </div>
         <div class="sticker-grid" id="stickerGrid"></div>
         <div class="completion-banner" id="completionBanner">🎉 축하해요! 스티커를 모두 모았어요! 🎉</div>
-        <div class="reward-shop" id="rewardShop"></div>
+        <div class="shop-area" id="shopArea"></div>
       </div>
       <div class="board-actions">
         <button class="btn-action" onclick="resetStickers()">초기화</button>
@@ -428,30 +384,29 @@ body{
     </div>
   </div>
 
-  <!-- 설정 화면 -->
   <div class="settings-page" id="settingsPage">
     <button class="btn-back" onclick="closeSettings()">&#8592; 돌아가기</button>
 
     <div class="settings-section">
       <h3>🎮 게임시간 보상 설정</h3>
       <p style="font-size:.82rem;color:#999;margin-bottom:16px;line-height:1.5">
-        스티커를 모으면 게임시간으로 교환할 수 있어요!<br>
-        개수와 시간을 자유롭게 설정하세요.
+        스티커를 모으면 게임시간으로 교환할 수 있어요!
       </p>
-      <div id="rewardRulesArea"></div>
-      <button class="btn-add-rule" onclick="addRewardRule()">+ 보상 규칙 추가</button>
+      <div id="gameRulesArea"></div>
+      <button class="btn-add-rule" onclick="addGameRule()">+ 게임시간 규칙 추가</button>
     </div>
 
     <div class="settings-section">
-      <h3>&#9881; 기타 설정</h3>
-      <p style="font-size:.82rem;color:#999;line-height:1.5">
-        Firebase 연동 시 firebaseConfig 값을 index.html 파일에서 직접 수정해주세요.
+      <h3>🧸 장난감 보상 설정</h3>
+      <p style="font-size:.82rem;color:#999;margin-bottom:16px;line-height:1.5">
+        스티커를 모으면 장난감 구매 금액으로 교환할 수 있어요!
       </p>
+      <div id="toyRulesArea"></div>
+      <button class="btn-add-rule" onclick="addToyRule()">+ 장난감 규칙 추가</button>
     </div>
   </div>
 </div>
 
-<!-- 아이 등록 모달 -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -480,7 +435,7 @@ body{
 </div>
 
 <script>
-const firebaseConfig = {
+var firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
   projectId: "YOUR_PROJECT_ID",
@@ -489,8 +444,7 @@ const firebaseConfig = {
   appId: "YOUR_APP_ID"
 };
 
-let db = null;
-let useFirebase = false;
+var db = null, useFirebase = false;
 try {
   if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
     firebase.initializeApp(firebaseConfig);
@@ -500,37 +454,43 @@ try {
 } catch (e) { console.warn("Firebase init failed", e); }
 if (!useFirebase) document.getElementById('firebaseStatus').classList.add('show');
 
-let children = [];
-let activeChildId = null;
-let selectedTheme = 'strawberry';
+var children = [];
+var activeChildId = null;
+var selectedTheme = 'strawberry';
+var activeShopTab = 'game';
 
-// 게임시간 보상 규칙 (기본값)
-let rewardRules = [
+var gameRules = [
   { stickers: 10, minutes: 15 },
   { stickers: 20, minutes: 30 }
 ];
+var toyRules = [
+  { stickers: 10, won: 5000 },
+  { stickers: 20, won: 10000 }
+];
 
-const THEME_STICKERS = {
+var THEME_STICKERS = {
   strawberry: '🍓',
   grape: '🍇',
   apple: '🍎'
 };
 
-// ── 저장/로드 ──
 function saveLocal() {
   localStorage.setItem('praise_sticker_data', JSON.stringify(children));
-  localStorage.setItem('praise_reward_rules', JSON.stringify(rewardRules));
+  localStorage.setItem('praise_game_rules', JSON.stringify(gameRules));
+  localStorage.setItem('praise_toy_rules', JSON.stringify(toyRules));
 }
 function loadLocal() {
   var d = localStorage.getItem('praise_sticker_data');
   if (d) children = JSON.parse(d);
-  var r = localStorage.getItem('praise_reward_rules');
-  if (r) rewardRules = JSON.parse(r);
+  var g = localStorage.getItem('praise_game_rules');
+  if (g) gameRules = JSON.parse(g);
+  var t = localStorage.getItem('praise_toy_rules');
+  if (t) toyRules = JSON.parse(t);
 }
 
 async function saveToFirestore() {
   if (!useFirebase) return;
-  try { await db.collection('stickerData').doc('main').set({ children, rewardRules }); }
+  try { await db.collection('stickerData').doc('main').set({ children: children, gameRules: gameRules, toyRules: toyRules }); }
   catch(e) { console.warn('Firestore save failed', e); }
 }
 async function loadFromFirestore() {
@@ -539,76 +499,95 @@ async function loadFromFirestore() {
     var doc = await db.collection('stickerData').doc('main').get();
     if (doc.exists) {
       children = doc.data().children;
-      if (doc.data().rewardRules) rewardRules = doc.data().rewardRules;
+      if (doc.data().gameRules) gameRules = doc.data().gameRules;
+      if (doc.data().toyRules) toyRules = doc.data().toyRules;
       return true;
     }
   } catch(e) { console.warn('Firestore load failed', e); }
   return false;
 }
 function persist() { saveLocal(); saveToFirestore(); }
-
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
 // ── 설정 화면 ──
 function openSettings() {
   document.getElementById('mainPage').style.display = 'none';
   document.getElementById('settingsPage').classList.add('show');
-  renderRewardRules();
+  renderGameRules();
+  renderToyRules();
 }
 function closeSettings() {
-  saveRewardRules();
+  saveAllRules();
   document.getElementById('settingsPage').classList.remove('show');
   document.getElementById('mainPage').style.display = 'block';
   renderAll();
 }
 
-function renderRewardRules() {
-  var area = document.getElementById('rewardRulesArea');
+function renderGameRules() {
+  var area = document.getElementById('gameRulesArea');
   area.innerHTML = '';
-  rewardRules.sort(function(a,b){ return a.stickers - b.stickers; });
-  rewardRules.forEach(function(rule, i) {
+  gameRules.sort(function(a,b){ return a.stickers - b.stickers; });
+  gameRules.forEach(function(rule, i) {
     var row = document.createElement('div');
     row.className = 'reward-rule';
     row.innerHTML =
       '<label>스티커</label>' +
-      '<input type="number" value="' + rule.stickers + '" min="1" max="50" inputmode="numeric" data-idx="' + i + '" data-field="stickers">' +
+      '<input type="number" value="' + rule.stickers + '" min="1" max="50" inputmode="numeric" data-idx="' + i + '" data-field="stickers" data-type="game">' +
       '<span class="unit">개</span>' +
       '<span class="arrow">→</span>' +
-      '<input type="number" value="' + rule.minutes + '" min="1" max="999" inputmode="numeric" data-idx="' + i + '" data-field="minutes">' +
+      '<input type="number" value="' + rule.minutes + '" min="1" max="999" inputmode="numeric" data-idx="' + i + '" data-field="minutes" data-type="game">' +
       '<span class="unit">분</span>' +
-      '<button class="btn-remove-rule" onclick="removeRewardRule(' + i + ')">✕</button>';
+      '<button class="btn-remove-rule" onclick="removeGameRule(' + i + ')">✕</button>';
     area.appendChild(row);
   });
+}
 
-  area.querySelectorAll('input').forEach(function(inp) {
-    inp.addEventListener('change', function() {
-      var idx = parseInt(this.dataset.idx);
-      var field = this.dataset.field;
-      rewardRules[idx][field] = parseInt(this.value) || 1;
-    });
+function renderToyRules() {
+  var area = document.getElementById('toyRulesArea');
+  area.innerHTML = '';
+  toyRules.sort(function(a,b){ return a.stickers - b.stickers; });
+  toyRules.forEach(function(rule, i) {
+    var row = document.createElement('div');
+    row.className = 'reward-rule';
+    row.innerHTML =
+      '<label>스티커</label>' +
+      '<input type="number" value="' + rule.stickers + '" min="1" max="50" inputmode="numeric" data-idx="' + i + '" data-field="stickers" data-type="toy">' +
+      '<span class="unit">개</span>' +
+      '<span class="arrow">→</span>' +
+      '<input type="number" value="' + rule.won + '" min="100" max="999999" inputmode="numeric" data-idx="' + i + '" data-field="won" data-type="toy" style="width:90px">' +
+      '<span class="unit">원</span>' +
+      '<button class="btn-remove-rule" onclick="removeToyRule(' + i + ')">✕</button>';
+    area.appendChild(row);
   });
 }
 
-function addRewardRule() {
-  var last = rewardRules.length ? rewardRules[rewardRules.length - 1] : { stickers: 0, minutes: 0 };
-  rewardRules.push({ stickers: last.stickers + 10, minutes: last.minutes + 15 });
-  persist();
-  renderRewardRules();
+function addGameRule() {
+  var last = gameRules.length ? gameRules[gameRules.length - 1] : { stickers: 0, minutes: 0 };
+  gameRules.push({ stickers: last.stickers + 10, minutes: last.minutes + 15 });
+  persist(); renderGameRules();
 }
+function removeGameRule(i) { gameRules.splice(i, 1); persist(); renderGameRules(); }
 
-function removeRewardRule(i) {
-  rewardRules.splice(i, 1);
-  persist();
-  renderRewardRules();
+function addToyRule() {
+  var last = toyRules.length ? toyRules[toyRules.length - 1] : { stickers: 0, won: 0 };
+  toyRules.push({ stickers: last.stickers + 10, won: last.won + 5000 });
+  persist(); renderToyRules();
 }
+function removeToyRule(i) { toyRules.splice(i, 1); persist(); renderToyRules(); }
 
-function saveRewardRules() {
-  document.querySelectorAll('#rewardRulesArea input').forEach(function(inp) {
+function saveAllRules() {
+  document.querySelectorAll('#gameRulesArea input').forEach(function(inp) {
     var idx = parseInt(inp.dataset.idx);
     var field = inp.dataset.field;
-    rewardRules[idx][field] = parseInt(inp.value) || 1;
+    gameRules[idx][field] = parseInt(inp.value) || 1;
   });
-  rewardRules.sort(function(a,b){ return a.stickers - b.stickers; });
+  document.querySelectorAll('#toyRulesArea input').forEach(function(inp) {
+    var idx = parseInt(inp.dataset.idx);
+    var field = inp.dataset.field;
+    toyRules[idx][field] = parseInt(inp.value) || 1;
+  });
+  gameRules.sort(function(a,b){ return a.stickers - b.stickers; });
+  toyRules.sort(function(a,b){ return a.stickers - b.stickers; });
   persist();
 }
 
@@ -632,23 +611,17 @@ function selectTheme(el) {
   el.classList.add('selected');
   selectedTheme = el.dataset.theme;
 }
-
 function saveChild() {
   var name = document.getElementById('inputName').value.trim();
   var count = parseInt(document.getElementById('inputCount').value) || 20;
   if (!name) { alert('이름을 입력해주세요!'); return; }
   if (count < 1 || count > 50) { alert('스티커 개수는 1~50 사이로 해주세요!'); return; }
-  var child = {
-    id: uid(), name: name,
-    count: Math.min(Math.max(count, 1), 50),
-    theme: selectedTheme,
-    stickers: new Array(Math.min(Math.max(count,1),50)).fill(false)
-  };
+  var c = Math.min(Math.max(count, 1), 50);
+  var child = { id: uid(), name: name, count: c, theme: selectedTheme, stickers: new Array(c).fill(false) };
   children.push(child);
   activeChildId = child.id;
   persist(); closeModal(); renderAll();
 }
-
 function deleteChild(id, e) {
   e.stopPropagation();
   if (!confirm('정말 삭제할까요?')) return;
@@ -656,14 +629,12 @@ function deleteChild(id, e) {
   if (activeChildId === id) activeChildId = children.length ? children[0].id : null;
   persist(); renderAll();
 }
-
 function toggleSticker(index) {
   var child = children.find(function(c){ return c.id === activeChildId; });
   if (!child) return;
   child.stickers[index] = !child.stickers[index];
   persist(); renderBoard();
 }
-
 function resetStickers() {
   var child = children.find(function(c){ return c.id === activeChildId; });
   if (!child) return;
@@ -671,10 +642,7 @@ function resetStickers() {
   child.stickers = new Array(child.count).fill(false);
   persist(); renderBoard();
 }
-
-function getStickerEmoji(theme) {
-  return THEME_STICKERS[theme] || '🍓';
-}
+function getStickerEmoji(theme) { return THEME_STICKERS[theme] || '🍓'; }
 
 // ── 렌더링 ──
 function renderAll() {
@@ -688,7 +656,6 @@ function renderAll() {
     document.getElementById('boardArea').style.display = 'none';
   }
 }
-
 function renderChildBar() {
   var bar = document.getElementById('childBar');
   bar.innerHTML = '';
@@ -708,18 +675,15 @@ function renderChildBar() {
   addBtn.onclick = openModal;
   bar.appendChild(addBtn);
 }
-
 function renderBoard() {
   var child = children.find(function(c){ return c.id === activeChildId; });
   if (!child) return;
 
   var wrapper = document.getElementById('boardWrapper');
   wrapper.className = 'board-wrapper theme-' + child.theme;
-
   document.getElementById('boardName').textContent = child.name + '의 칭찬 스티커판';
   var filled = child.stickers.filter(Boolean).length;
   document.getElementById('boardProgress').textContent = filled + ' / ' + child.count + ' 개 완료';
-
   var pct = child.count > 0 ? Math.round((filled / child.count) * 100) : 0;
   document.getElementById('progressFill').style.width = pct + '%';
 
@@ -727,7 +691,6 @@ function renderBoard() {
   grid.innerHTML = '';
   var cols = child.count <= 12 ? 4 : 5;
   grid.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
-
   child.stickers.forEach(function(done, i) {
     var slot = document.createElement('div');
     slot.className = 'sticker-slot' + (done ? ' filled' : '');
@@ -736,52 +699,76 @@ function renderBoard() {
     grid.appendChild(slot);
   });
 
-  var banner = document.getElementById('completionBanner');
-  banner.classList.toggle('show', filled === child.count);
-
-  // 게임시간 보상 표시
-  renderRewardShop(filled);
+  document.getElementById('completionBanner').classList.toggle('show', filled === child.count);
+  renderShop(filled);
 }
 
-function renderRewardShop(filled) {
-  var shop = document.getElementById('rewardShop');
-  if (!rewardRules.length) { shop.style.display = 'none'; return; }
-  shop.style.display = 'block';
+function switchShopTab(tab) {
+  activeShopTab = tab;
+  var child = children.find(function(c){ return c.id === activeChildId; });
+  if (child) {
+    var filled = child.stickers.filter(Boolean).length;
+    renderShop(filled);
+  }
+}
 
-  var sorted = rewardRules.slice().sort(function(a,b){ return a.stickers - b.stickers; });
-  var html = '<div class="shop-header">🎮 GAME TIME SHOP</div><div class="shop-body">';
-  sorted.forEach(function(rule) {
-    var earned = filled >= rule.stickers;
-    var status = earned ? 'earned' : 'locked';
-    var remaining = earned ? 0 : rule.stickers - filled;
-    html += '<div class="shop-item ' + status + '">' +
-      '<div class="shop-thumb">' +
-        '🎮' +
-        '<span class="shop-thumb-badge">' + (earned ? 'READY' : remaining + ' more') + '</span>' +
-      '</div>' +
-      '<div class="shop-info">' +
-        '<div class="item-name">게임시간</div>' +
-        '<div class="item-time">' + rule.minutes + '분</div>' +
-      '</div>' +
-      '<div class="shop-cost"><span class="coin">⭐</span> ' + rule.stickers + '개</div>' +
-      '<button class="shop-btn">' + (earned ? '교환하기' : '스티커 부족') + '</button>' +
-    '</div>';
-  });
+function renderShop(filled) {
+  var area = document.getElementById('shopArea');
+  var hasGame = gameRules.length > 0;
+  var hasToy = toyRules.length > 0;
+  if (!hasGame && !hasToy) { area.style.display = 'none'; return; }
+  area.style.display = 'block';
+
+  var html = '<div class="shop-tabs">';
+  if (hasGame) html += '<button class="shop-tab tab-game' + (activeShopTab === 'game' ? ' active' : '') + '" onclick="switchShopTab(\'game\')">🎮 게임시간</button>';
+  if (hasToy) html += '<button class="shop-tab tab-toy' + (activeShopTab === 'toy' ? ' active' : '') + '" onclick="switchShopTab(\'toy\')">🧸 장난감</button>';
+  html += '</div><div class="shop-body">';
+
+  if (activeShopTab === 'game' && hasGame) {
+    var sorted = gameRules.slice().sort(function(a,b){ return a.stickers - b.stickers; });
+    sorted.forEach(function(rule) {
+      var earned = filled >= rule.stickers;
+      var remaining = earned ? 0 : rule.stickers - filled;
+      html += '<div class="shop-item ' + (earned ? 'earned' : 'locked') + '">' +
+        '<div class="shop-thumb game-bg">🎮' +
+          '<span class="shop-thumb-badge">' + (earned ? 'READY' : remaining + '개 더') + '</span>' +
+        '</div>' +
+        '<div class="shop-info"><div class="item-name">게임시간</div><div class="item-value">' + rule.minutes + '분</div></div>' +
+        '<div class="shop-cost"><span class="coin">⭐</span> 스티커 ' + rule.stickers + '개</div>' +
+        '<button class="shop-btn">' + (earned ? '교환하기' : '스티커 부족') + '</button></div>';
+    });
+  } else if (activeShopTab === 'toy' && hasToy) {
+    var sorted = toyRules.slice().sort(function(a,b){ return a.stickers - b.stickers; });
+    sorted.forEach(function(rule) {
+      var earned = filled >= rule.stickers;
+      var remaining = earned ? 0 : rule.stickers - filled;
+      var wonStr = rule.won >= 10000 ? (rule.won / 10000) + '만원' : rule.won.toLocaleString() + '원';
+      html += '<div class="shop-item ' + (earned ? 'earned' : 'locked') + '">' +
+        '<div class="shop-thumb toy-bg">🧸' +
+          '<span class="shop-thumb-badge">' + (earned ? 'READY' : remaining + '개 더') + '</span>' +
+        '</div>' +
+        '<div class="shop-info"><div class="item-name">장난감 금액</div><div class="item-value">' + wonStr + '</div></div>' +
+        '<div class="shop-cost"><span class="coin">⭐</span> 스티커 ' + rule.stickers + '개</div>' +
+        '<button class="shop-btn">' + (earned ? '교환하기' : '스티커 부족') + '</button></div>';
+    });
+  } else {
+    if (hasGame && !hasToy) activeShopTab = 'game';
+    else if (hasToy) activeShopTab = 'toy';
+  }
+
   html += '</div>';
-  shop.innerHTML = html;
+  area.innerHTML = html;
 }
 
 // 모달 바깥 터치 닫기
 document.getElementById('modalOverlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
-
 window.visualViewport && window.visualViewport.addEventListener('resize', function() {
   var modal = document.querySelector('.modal');
   if (modal) modal.scrollTop = modal.scrollHeight;
 });
 
-// 초기 로드
 (async function init() {
   var loaded = await loadFromFirestore();
   if (!loaded) loadLocal();
