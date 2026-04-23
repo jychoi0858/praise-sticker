@@ -745,6 +745,9 @@ function useTicket(idx) {
   var child = children.find(function(c){ return c.id === activeChildId; });
   if (!child || !child.rewards || !child.rewards[idx]) return;
   if (child.rewards[idx].used) return;
+  var r = child.rewards[idx];
+  var label = r.type === 'game' ? (r.value + '분 게임시간') : (r.value >= 10000 ? (r.value/10000) + '만원 장난감' : r.value.toLocaleString() + '원 장난감');
+  if (!confirm(label + ' 사용권을 사용할까요?')) return;
   child.rewards[idx].used = true;
   persist(); renderTickets();
 }
@@ -757,19 +760,47 @@ function deleteTicket(idx) {
   persist(); renderTickets();
 }
 
+function addManualTicket() {
+  var child = children.find(function(c){ return c.id === activeChildId; });
+  if (!child) return;
+  var isGame = (child.rewardType || 'game') === 'game';
+  var input = prompt(isGame ? '추가할 게임시간(분)을 입력하세요:' : '추가할 금액(원)을 입력하세요:');
+  if (!input) return;
+  var val = parseInt(input);
+  if (!val || val <= 0) { alert('올바른 숫자를 입력해주세요!'); return; }
+  if (!child.rewards) child.rewards = [];
+  var now = new Date();
+  var dateStr = now.getFullYear() + '.' + (now.getMonth()+1) + '.' + now.getDate() + ' ' +
+    String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  child.rewards.push({
+    type: child.rewardType || 'game',
+    value: val,
+    stickersUsed: 0,
+    date: dateStr,
+    used: false
+  });
+  lastNewTicket = child.rewards.length - 1;
+  persist(); renderBoard();
+}
+
 var lastNewTicket = -1;
 function renderTickets() {
   var area = document.getElementById('ticketsArea');
   var child = children.find(function(c){ return c.id === activeChildId; });
-  if (!child || !child.rewards || !child.rewards.length) {
-    area.style.display = 'none'; return;
-  }
+  if (!child) { area.style.display = 'none'; return; }
+  if (!child.rewards) child.rewards = [];
   area.style.display = 'block';
 
   var isGame = (child.rewardType || 'game') === 'game';
-  var html = '<div class="tickets-header">' + (isGame ? '🎟 게임 사용권' : '🎟 장난감 사용권') + '</div>';
+  var html = '<div class="tickets-header" style="display:flex;align-items:center;justify-content:center;gap:8px;position:relative">' +
+    '<span>' + (isGame ? '🎟 게임 사용권' : '🎟 장난감 사용권') + '</span>' +
+    '<button onclick="addManualTicket()" style="position:absolute;right:10px;background:rgba(255,255,255,.25);border:none;color:#fff;font-size:.8rem;font-weight:700;padding:4px 12px;border-radius:8px;cursor:pointer;font-family:inherit">+ 추가</button>' +
+    '</div>';
   html += '<div class="tickets-body">';
 
+  if (!child.rewards.length) {
+    html += '<div class="tickets-empty">아직 사용권이 없어요. 스티커를 교환하거나 직접 추가해보세요!</div>';
+  }
   child.rewards.forEach(function(r, i) {
     var icon = r.type === 'game' ? '🎮' : '🧸';
     var valueStr;
@@ -783,7 +814,7 @@ function renderTickets() {
       '<div class="ticket-icon">' + icon + '</div>' +
       '<div class="ticket-info">' +
         '<div class="ticket-value">' + valueStr + '</div>' +
-        '<div class="ticket-date">' + r.date + ' | 스티커 ' + r.stickersUsed + '개 사용</div>' +
+        '<div class="ticket-date">' + r.date + (r.stickersUsed > 0 ? ' | 스티커 ' + r.stickersUsed + '개 사용' : ' | 직접 추가') + '</div>' +
       '</div>' +
       '<div class="ticket-actions">';
     if (!r.used) {
