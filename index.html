@@ -531,7 +531,7 @@ body>*{position:relative;z-index:1}
 </div>
 
 <!-- 사용권 선택 모달 (벌점 회수용) -->
-<div class="modal-overlay" id="pickTicketModalOverlay">
+<div class="modal-overlay" id="pickTicketModalOverlay" style="z-index:200">
   <div class="modal">
     <div class="modal-handle"></div>
     <h2>⚠️ 회수할 사용권 선택</h2>
@@ -791,7 +791,7 @@ function savePenalty() {
   var ds = now.getFullYear() + '.' + (now.getMonth()+1) + '.' + now.getDate() + ' ' +
     String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
   var penaltyId = uid();
-  child.penalties.push({ id: penaltyId, title: title, minutes: mins, date: ds, processed: false });
+  child.penalties.push({ id: penaltyId, title: title, minutes: mins, date: ds, dateKey: selectedDate, processed: false });
   // 게임사용권에 회수 항목 추가 (미처리 상태)
   if (!child.rewards) child.rewards = [];
   child.rewards.push({
@@ -816,19 +816,47 @@ function deletePenalty(idx) {
   child.penalties.splice(idx, 1);
   persist(); renderAll();
 }
+function penaltyDateKey(p) {
+  // dateKey가 있으면 사용, 없으면 date 문자열에서 추출 (하위호환)
+  if (p.dateKey) return p.dateKey;
+  var parts = p.date.split(' ')[0].split('.');
+  if (parts.length >= 3) {
+    return parts[0] + '-' + String(parseInt(parts[1])).padStart(2,'0') + '-' + String(parseInt(parts[2])).padStart(2,'0');
+  }
+  return '';
+}
+
 function renderPenaltyList() {
   var child = children.find(function(c){ return c.id === activeChildId; });
   var area = document.getElementById('penaltyList');
   var totalArea = document.getElementById('penaltyTotal');
   if (!child) return;
   if (!child.penalties) child.penalties = [];
+
+  // 선택된 날짜에 해당하는 벌점만 필터
+  var dayPenalties = child.penalties.filter(function(p) {
+    return penaltyDateKey(p) === selectedDate;
+  });
+  // 원래 인덱스도 추적
+  var dayPenaltyIndices = [];
+  child.penalties.forEach(function(p, i) {
+    if (penaltyDateKey(p) === selectedDate) dayPenaltyIndices.push(i);
+  });
+
+  // 패널 제목 업데이트
+  var titleEl = document.querySelector('.penalty-title');
+  if (titleEl) {
+    titleEl.innerHTML = (selectedDate === todayStr()) ? '⚠️ 오늘의 약속어김' : '⚠️ ' + formatDate(selectedDate) + ' 약속어김';
+  }
+
   area.innerHTML = '';
-  if (!child.penalties.length) {
-    area.innerHTML = '<div class="penalty-empty">약속어김이 없어요!<br>잘하고 있어요 👍</div>';
+  if (!dayPenalties.length) {
+    area.innerHTML = '<div class="penalty-empty">이 날은 약속어김이 없어요!<br>잘하고 있어요 👍</div>';
     totalArea.style.display = 'none';
     return;
   }
-  child.penalties.forEach(function(p, i) {
+  dayPenalties.forEach(function(p, idx) {
+    var origIdx = dayPenaltyIndices[idx];
     var div = document.createElement('div');
     div.className = 'penalty-card';
     if (p.processed) div.style.opacity = '.5';
@@ -839,12 +867,12 @@ function renderPenaltyList() {
         '<div class="penalty-date">' + p.date + (p.processed ? ' · 회수완료' : ' · 미처리') + '</div>' +
       '</div>' +
       '<div class="penalty-badge">-' + p.minutes + '분</div>' +
-      '<button class="btn-del-penalty" onclick="deletePenalty(' + i + ')">✕</button>';
+      '<button class="btn-del-penalty" onclick="deletePenalty(' + origIdx + ')">✕</button>';
     area.appendChild(div);
   });
-  // 총 회수시간
+  // 해당 날짜 회수시간
   var totalPenalty = 0;
-  child.penalties.forEach(function(p){ totalPenalty += p.minutes; });
+  dayPenalties.forEach(function(p){ totalPenalty += p.minutes; });
   var penaltyStr;
   if (totalPenalty >= 60) {
     var hrs = Math.floor(totalPenalty / 60);
@@ -854,7 +882,7 @@ function renderPenaltyList() {
     penaltyStr = totalPenalty + '분';
   }
   totalArea.style.display = 'block';
-  totalArea.innerHTML = '<div class="num">-' + penaltyStr + '</div><div class="lbl">총 회수된 시간</div>';
+  totalArea.innerHTML = '<div class="num">-' + penaltyStr + '</div><div class="lbl">이 날 회수 시간</div>';
 }
 
 /* ── 사용권 모달 ── */
@@ -1266,6 +1294,6 @@ document.getElementById('pickTicketModalOverlay').addEventListener('click', func
   renderAll();
 })();
 </script>
-<div style="text-align:center;padding:12px;font-size:.65rem;color:#ccc;font-family:monospace">build: 2026-05-11 v25</div>
+<div style="text-align:center;padding:12px;font-size:.65rem;color:#ccc;font-family:monospace">build: 2026-05-11 v27</div>
 </body>
 </html>
