@@ -360,6 +360,39 @@ body>*{position:relative;z-index:1}
 .ticket-btn.del{background:#fee;color:#e44}
 .ticket-btn.del:active{background:#fdd}
 .tickets-empty{text-align:center;padding:20px;color:#ccc;font-size:.82rem}
+.ticket-btn.deduct{background:linear-gradient(135deg,#e44,#c33);color:#fff}
+.ticket-btn.deduct:active{transform:scale(.95)}
+.ticket-btn.deducted-label{background:#fee;color:#c33;cursor:default}
+
+/* 사용권 선택 모달 */
+.pick-ticket-list{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.pick-ticket-item{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;border-radius:12px;
+  border:2px solid #e8e0f0;background:#fafafe;
+  cursor:pointer;transition:all .15s;
+}
+.pick-ticket-item:active{transform:scale(.98)}
+.pick-ticket-item:hover{border-color:#667eea;background:#f0ecff}
+.pick-ticket-item .pt-icon{font-size:1.2rem}
+.pick-ticket-item .pt-info{flex:1}
+.pick-ticket-item .pt-value{font-size:.85rem;font-weight:800}
+.pick-ticket-item .pt-date{font-size:.62rem;color:#aaa}
+.pick-ticket-item .pt-badge{
+  padding:4px 10px;border-radius:8px;
+  background:linear-gradient(135deg,#e8f0ff,#dde4ff);
+  font-size:.78rem;font-weight:800;color:#667eea;
+}
+.pick-ticket-warn{
+  padding:12px;border-radius:10px;background:#fff5f5;
+  font-size:.8rem;color:#c33;text-align:center;font-weight:600;margin-top:8px;
+}
+.pick-header{
+  text-align:center;padding:10px;border-radius:12px;
+  background:#fff5f5;margin-bottom:12px;
+}
+.pick-header .penalty-amount{font-size:1.1rem;font-weight:800;color:#e44}
+.pick-header .penalty-reason{font-size:.75rem;color:#999;margin-top:2px}
 .ticket-modal-add{
   display:flex;gap:8px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f0ebe4;
 }
@@ -493,6 +526,19 @@ body>*{position:relative;z-index:1}
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closePenaltyModal()">취소</button>
       <button class="btn-save" style="background:linear-gradient(135deg,#e44,#c33)" onclick="savePenalty()">회수하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 사용권 선택 모달 (벌점 회수용) -->
+<div class="modal-overlay" id="pickTicketModalOverlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>⚠️ 회수할 사용권 선택</h2>
+    <div class="pick-header" id="pickHeader"></div>
+    <div id="pickTicketBody"></div>
+    <div class="modal-btns" style="margin-top:16px">
+      <button class="btn-cancel" onclick="closePickTicketModal()" style="flex:1">취소</button>
     </div>
   </div>
 </div>
@@ -744,12 +790,13 @@ function savePenalty() {
   var now = new Date();
   var ds = now.getFullYear() + '.' + (now.getMonth()+1) + '.' + now.getDate() + ' ' +
     String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-  child.penalties.push({ id: uid(), title: title, minutes: mins, date: ds });
-  // 게임사용권에 회수 항목 추가
+  var penaltyId = uid();
+  child.penalties.push({ id: penaltyId, title: title, minutes: mins, date: ds, processed: false });
+  // 게임사용권에 회수 항목 추가 (미처리 상태)
   if (!child.rewards) child.rewards = [];
   child.rewards.push({
     type:'penalty', value: mins, taskName: title,
-    date: ds, used: true, usedDate: ds
+    date: ds, used: false, usedDate: '', penaltyId: penaltyId
   });
   persist(); closePenaltyModal(); renderAll();
 }
@@ -761,7 +808,7 @@ function deletePenalty(idx) {
   // rewards에서 매칭되는 penalty 항목도 제거
   if (child.rewards) {
     for (var ri = child.rewards.length-1; ri >= 0; ri--) {
-      if (child.rewards[ri].type === 'penalty' && child.rewards[ri].taskName === p.title && child.rewards[ri].value === p.minutes) {
+      if (child.rewards[ri].type === 'penalty' && child.rewards[ri].penaltyId === p.id) {
         child.rewards.splice(ri, 1); break;
       }
     }
@@ -784,11 +831,12 @@ function renderPenaltyList() {
   child.penalties.forEach(function(p, i) {
     var div = document.createElement('div');
     div.className = 'penalty-card';
+    if (p.processed) div.style.opacity = '.5';
     div.innerHTML =
-      '<div class="penalty-icon">⚠️</div>' +
+      '<div class="penalty-icon">' + (p.processed ? '✅' : '⚠️') + '</div>' +
       '<div class="penalty-info">' +
         '<div class="penalty-name">' + p.title + '</div>' +
-        '<div class="penalty-date">' + p.date + '</div>' +
+        '<div class="penalty-date">' + p.date + (p.processed ? ' · 회수완료' : ' · 미처리') + '</div>' +
       '</div>' +
       '<div class="penalty-badge">-' + p.minutes + '분</div>' +
       '<button class="btn-del-penalty" onclick="deletePenalty(' + i + ')">✕</button>';
@@ -832,11 +880,18 @@ function renderTicketModal() {
     var div = document.createElement('div');
     div.className = 'ticket' + (r.used && !isPenalty ? ' used' : '') + (isPenalty ? ' penalty' : '');
     if (isPenalty) {
+      var isProcessed = r.used;
       div.innerHTML =
         '<div class="ticket-icon">⚠️</div>' +
         '<div class="ticket-info">' +
           '<div class="ticket-value" style="color:#e44">-' + r.value + '분 게임시간 회수</div>' +
           '<div class="ticket-date">' + r.date + ' | ' + (r.taskName||'') + '</div>' +
+          (isProcessed && r.usedDate ? '<div class="ticket-date" style="color:#c33">처리완료: ' + r.usedDate + '</div>' : '') +
+        '</div>' +
+        '<div class="ticket-actions">' +
+          (!isProcessed ?
+            '<button class="ticket-btn deduct" onclick="openPickTicketModal(' + i + ')">회수하기</button>' :
+            '<span class="ticket-btn deducted-label">처리됨</span>') +
         '</div>';
     } else {
       div.innerHTML =
@@ -886,6 +941,128 @@ function addManualTicket() {
     String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
   child.rewards.push({ type:'game', value:val, taskName:'직접 추가', date:ds, used:false, usedDate:'' });
   persist(); renderTicketModal(); renderAll();
+}
+
+/* ── 사용권 선택 (벌점 회수) ── */
+var pendingPenaltyIdx = -1; // 현재 처리중인 penalty reward 인덱스
+
+function openPickTicketModal(penaltyRewardIdx) {
+  var child = children.find(function(c){ return c.id === activeChildId; });
+  if (!child) return;
+  pendingPenaltyIdx = penaltyRewardIdx;
+  var penaltyReward = child.rewards[penaltyRewardIdx];
+  var penaltyMins = penaltyReward.value;
+
+  // 헤더: 회수할 금액 표시
+  document.getElementById('pickHeader').innerHTML =
+    '<div class="penalty-amount">-' + penaltyMins + '분 회수</div>' +
+    '<div class="penalty-reason">' + (penaltyReward.taskName || '') + '</div>';
+
+  // 미사용 게임 사용권 목록
+  var body = document.getElementById('pickTicketBody');
+  body.innerHTML = '';
+  var hasAvailable = false;
+  var listHtml = '<div class="pick-ticket-list">';
+  child.rewards.forEach(function(r, i) {
+    if (r.type === 'penalty' || r.used) return;
+    hasAvailable = true;
+    var tooSmall = r.value < penaltyMins;
+    var item = document.createElement('div');
+    item.className = 'pick-ticket-item';
+    if (tooSmall) {
+      item.style.opacity = '.4';
+      item.style.cursor = 'not-allowed';
+    }
+    var afterStr = '';
+    if (!tooSmall) {
+      var remaining = r.value - penaltyMins;
+      if (remaining > 0) {
+        afterStr = '<div style="font-size:.65rem;color:#00b06f;margin-top:2px">회수 후 ' + remaining + '분 남음</div>';
+      } else {
+        afterStr = '<div style="font-size:.65rem;color:#e44;margin-top:2px">전액 회수 (사용처리)</div>';
+      }
+    } else {
+      afterStr = '<div style="font-size:.65rem;color:#e44;margin-top:2px">' + penaltyMins + '분보다 작아서 회수 불가</div>';
+    }
+    item.innerHTML =
+      '<div class="pt-icon">🎮</div>' +
+      '<div class="pt-info">' +
+        '<div class="pt-value">' + r.value + '분 게임시간</div>' +
+        '<div class="pt-date">' + r.date + ' | ' + (r.taskName||'') + '</div>' +
+        afterStr +
+      '</div>' +
+      '<div class="pt-badge">' + r.value + '분</div>';
+    if (!tooSmall) {
+      item.onclick = (function(ticketIdx) {
+        return function() { executeDeduction(ticketIdx); };
+      })(i);
+    }
+    body.appendChild(item);
+  });
+
+  if (!hasAvailable) {
+    body.innerHTML = '<div class="pick-ticket-warn">미사용 게임 사용권이 없어서 회수할 수 없어요!</div>';
+  }
+
+  document.getElementById('pickTicketModalOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePickTicketModal() {
+  document.getElementById('pickTicketModalOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+  pendingPenaltyIdx = -1;
+}
+
+function executeDeduction(ticketIdx) {
+  var child = children.find(function(c){ return c.id === activeChildId; });
+  if (!child || pendingPenaltyIdx < 0) return;
+  var penaltyReward = child.rewards[pendingPenaltyIdx];
+  var ticket = child.rewards[ticketIdx];
+  if (!penaltyReward || !ticket || ticket.used || ticket.type === 'penalty') return;
+
+  var penaltyMins = penaltyReward.value;
+  if (ticket.value < penaltyMins) {
+    alert(ticket.value + '분 사용권은 ' + penaltyMins + '분보다 작아서 회수할 수 없어요!');
+    return;
+  }
+
+  var remaining = ticket.value - penaltyMins;
+  var msg = '';
+  if (remaining > 0) {
+    msg = ticket.value + '분 사용권에서 ' + penaltyMins + '분을 회수하면 ' + remaining + '분이 남아요. 진행할까요?';
+  } else {
+    msg = ticket.value + '분 사용권을 전액 회수해서 사용 처리해요. 진행할까요?';
+  }
+  if (!confirm(msg)) return;
+
+  var now = new Date();
+  var ds = now.getFullYear() + '.' + (now.getMonth()+1) + '.' + now.getDate() + ' ' +
+    String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  if (remaining > 0) {
+    // 사용권 금액 차감
+    ticket.value = remaining;
+  } else {
+    // 전액 회수 → 사용 처리
+    ticket.used = true;
+    ticket.usedDate = ds + ' (벌점 회수)';
+  }
+
+  // 벌점 처리 완료
+  penaltyReward.used = true;
+  penaltyReward.usedDate = ds;
+
+  // penalties 배열에서도 processed 처리
+  if (child.penalties && penaltyReward.penaltyId) {
+    var p = child.penalties.find(function(x){ return x.id === penaltyReward.penaltyId; });
+    if (p) p.processed = true;
+  }
+
+  persist();
+  closePickTicketModal();
+  renderTicketModal();
+  renderAll();
 }
 
 /* ── 캘린더 ── */
@@ -1004,16 +1181,19 @@ function renderSummary() {
       if (t) earned += t.gameMinutes;
     }
   });
-  // 총 미사용 게임시간 계산 (벌점 차감 반영)
+  // 총 미사용 게임시간 계산
+  // 미사용 게임 사용권 합산 (이미 벌점으로 금액 차감된 것도 반영됨)
   var totalUnused = 0;
   if (child.rewards) {
     child.rewards.forEach(function(r) {
       if (!r.used && r.type !== 'penalty') totalUnused += r.value;
     });
   }
-  // 벌점 차감
-  if (child.penalties) {
-    child.penalties.forEach(function(p) { totalUnused -= p.minutes; });
+  // 미처리 벌점만 차감 (처리된 벌점은 이미 사용권에서 차감됨)
+  if (child.rewards) {
+    child.rewards.forEach(function(r) {
+      if (r.type === 'penalty' && !r.used) totalUnused -= r.value;
+    });
   }
   if (totalUnused < 0) totalUnused = 0;
   var totalStr;
@@ -1075,6 +1255,7 @@ document.getElementById('childModalOverlay').addEventListener('click', function(
 document.getElementById('taskModalOverlay').addEventListener('click', function(e){ if(e.target===this) closeTaskModal(); });
 document.getElementById('ticketModalOverlay').addEventListener('click', function(e){ if(e.target===this) closeTicketsModal(); });
 document.getElementById('penaltyModalOverlay').addEventListener('click', function(e){ if(e.target===this) closePenaltyModal(); });
+document.getElementById('pickTicketModalOverlay').addEventListener('click', function(e){ if(e.target===this) closePickTicketModal(); });
 
 /* ── 초기화 ── */
 (async function init() {
@@ -1085,6 +1266,6 @@ document.getElementById('penaltyModalOverlay').addEventListener('click', functio
   renderAll();
 })();
 </script>
-<div style="text-align:center;padding:12px;font-size:.65rem;color:#ccc;font-family:monospace">build: 2026-05-11 v24</div>
+<div style="text-align:center;padding:12px;font-size:.65rem;color:#ccc;font-family:monospace">build: 2026-05-11 v25</div>
 </body>
 </html>
