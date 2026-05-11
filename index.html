@@ -16,20 +16,30 @@ html{font-size:16px}
 body{
   font-family:'Noto Sans KR',system-ui,-apple-system,sans-serif;
   min-height:100vh;min-height:100dvh;
-  background:#f5f3ee;color:#3a2e26;
+  background:#f0edff;color:#3a2e26;
   overscroll-behavior:none;-webkit-font-smoothing:antialiased;
+  position:relative;
 }
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 600px 400px at 10% 20%, rgba(167,139,250,.18) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 500px at 85% 15%, rgba(251,191,36,.12) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 350px at 50% 80%, rgba(52,211,153,.12) 0%, transparent 70%),
+    radial-gradient(ellipse 350px 300px at 90% 75%, rgba(244,114,182,.1) 0%, transparent 70%);
+}
+body>*{position:relative;z-index:1}
 
 /* ── 헤더 ── */
 .app-header{
   width:100%;
   padding:max(env(safe-area-inset-top),10px) 16px 10px;
-  background:#fff;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
   display:flex;align-items:center;gap:10px;
-  box-shadow:0 1px 8px rgba(0,0,0,.06);
+  box-shadow:0 2px 16px rgba(102,126,234,.25);
   position:sticky;top:0;z-index:50;
 }
-.app-title{font-size:1.1rem;font-weight:800;letter-spacing:-.02em;flex-shrink:0}
+.app-title{font-size:1.1rem;font-weight:800;letter-spacing:-.02em;flex-shrink:0;color:#fff}
 .child-selector{
   display:flex;gap:6px;flex:1;overflow-x:auto;
   scrollbar-width:none;-webkit-overflow-scrolling:touch;
@@ -37,31 +47,31 @@ body{
 .child-selector::-webkit-scrollbar{display:none}
 .child-chip{
   flex-shrink:0;padding:7px 14px;border-radius:20px;
-  border:2px solid #e0d5c8;background:#fff;
-  cursor:pointer;font-size:.8rem;font-weight:600;
+  border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);
+  cursor:pointer;font-size:.8rem;font-weight:600;color:rgba(255,255,255,.85);
   transition:all .15s;white-space:nowrap;min-height:36px;
   display:flex;align-items:center;gap:4px;
 }
 .child-chip:active{transform:scale(.96)}
 .child-chip.active{
-  background:linear-gradient(135deg,#667eea,#764ba2);
-  color:#fff;border-color:transparent;
-  box-shadow:0 2px 10px rgba(102,126,234,.3);
+  background:#fff;
+  color:#764ba2;border-color:transparent;
+  box-shadow:0 2px 10px rgba(0,0,0,.15);font-weight:700;
 }
 .btn-add-chip{
   flex-shrink:0;width:36px;height:36px;border-radius:50%;
-  border:2px dashed #ccc;background:transparent;
-  cursor:pointer;font-size:1.1rem;color:#aaa;
+  border:2px dashed rgba(255,255,255,.4);background:transparent;
+  cursor:pointer;font-size:1.1rem;color:rgba(255,255,255,.6);
   display:flex;align-items:center;justify-content:center;
 }
-.btn-add-chip:active{border-color:#667eea;color:#667eea}
+.btn-add-chip:active{border-color:#fff;color:#fff}
 .header-actions{display:flex;gap:6px;flex-shrink:0}
 .btn-icon{
-  width:36px;height:36px;border:none;background:#f0ebe4;
+  width:36px;height:36px;border:none;background:rgba(255,255,255,.2);
   border-radius:50%;cursor:pointer;font-size:.9rem;
-  display:flex;align-items:center;justify-content:center;color:#888;
+  display:flex;align-items:center;justify-content:center;color:#fff;
 }
-.btn-icon:active{background:#e0d5c8;transform:scale(.92)}
+.btn-icon:active{background:rgba(255,255,255,.35);transform:scale(.92)}
 
 /* ── 2열 레이아웃 ── */
 .layout{
@@ -76,7 +86,8 @@ body{
 /* ── 캘린더 ── */
 .calendar{
   background:#fff;border-radius:16px;
-  padding:16px;border:1.5px solid #f0ebe4;
+  padding:16px;border:none;
+  box-shadow:0 2px 16px rgba(102,126,234,.08);
 }
 .cal-header{
   display:flex;align-items:center;justify-content:space-between;
@@ -148,8 +159,9 @@ body{
 /* ── 할일 섹션 ── */
 .tasks-panel{
   background:#fff;border-radius:16px;
-  padding:18px;border:1.5px solid #f0ebe4;
+  padding:18px;border:none;
   min-height:300px;
+  box-shadow:0 2px 16px rgba(102,126,234,.08);
 }
 .tasks-header{
   display:flex;align-items:center;justify-content:space-between;
@@ -829,7 +841,7 @@ function renderSummary() {
   document.getElementById('calSummary').innerHTML =
     '<div class="s-card done"><div class="num">' + done + '/' + total + '</div><div class="lbl">완료</div></div>' +
     '<div class="s-card time"><div class="num">' + earned + '분</div><div class="lbl">오늘 획득</div></div>' +
-    '<div class="s-card total"><div class="num">' + totalStr + '</div><div class="lbl">총 게임시간</div></div>';
+    '<div class="s-card total"><div class="num">' + totalStr + '</div><div class="lbl">총 획득 게임시간</div></div>';
 }
 
 function renderTaskList() {
@@ -885,6 +897,6 @@ document.getElementById('ticketModalOverlay').addEventListener('click', function
   renderAll();
 })();
 </script>
-<div style="text-align:center;padding:12px;font-size:.65rem;color:#ccc;font-family:monospace">build: 2026-05-11 v22</div>
+<div style="text-align:center;padding:12px;font-size:.65rem;color:#ccc;font-family:monospace">build: 2026-05-11 v23</div>
 </body>
 </html>
