@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<title>우리 아이 할일표</title>
+<title>하루습관</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -117,11 +117,13 @@ body{
 .cal-day.selected.has-done::after,.cal-day.selected.all-done::after{background:#fff}
 .cal-day.sun{color:#e44}.cal-day.sat{color:#4488ee}
 .cal-day.selected.sun,.cal-day.selected.sat{color:#fff}
+.cal-day.future{color:#ddd;cursor:default;pointer-events:none}
 
 /* ── 요약 카드 (캘린더 아래) ── */
 .cal-summary{
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;
 }
+.s-card.total .num{color:#e8855a}
 .s-card{
   padding:10px;border-radius:12px;background:#f9f8f5;text-align:center;
 }
@@ -327,12 +329,9 @@ body{
 <body>
 
 <div class="app-header">
-  <div class="app-title">할일표</div>
+  <div class="app-title">하루습관</div>
   <div class="child-selector" id="childSelector">
     <button class="btn-add-chip" onclick="openChildModal()">+</button>
-  </div>
-  <div class="header-actions">
-    <button class="btn-icon" onclick="openManageTasksModal()" title="할일 관리">&#9998;</button>
   </div>
 </div>
 
@@ -369,7 +368,7 @@ body{
     <div class="tasks-panel">
       <div class="tasks-header">
         <div class="tasks-title" id="tasksTitle">📋 오늘의 할일</div>
-        <button class="btn-manage" onclick="openManageTasksModal()">할일 관리</button>
+        <button class="btn-manage" onclick="openManageTasksModal()">목표</button>
       </div>
       <div class="task-list" id="taskList"></div>
     </div>
@@ -394,8 +393,8 @@ body{
 <div class="modal-overlay" id="taskModalOverlay">
   <div class="modal">
     <div class="modal-handle"></div>
-    <h2>할일 관리</h2>
-    <p style="font-size:.8rem;color:#999;margin-bottom:12px;text-align:center">할일을 추가하거나 삭제할 수 있어요</p>
+    <h2>목표 관리</h2>
+    <p style="font-size:.8rem;color:#999;margin-bottom:12px;text-align:center">목표를 추가하거나 삭제할 수 있어요</p>
     <div id="manageTaskList"></div>
     <div class="add-task-row">
       <input type="text" id="newTaskName" placeholder="할일 이름">
@@ -729,9 +728,10 @@ function renderCalendar() {
     var ds = dateStr(viewYear, viewMonth, d);
     var isToday = (ds === td);
     var isSelected = (ds === selectedDate);
+    var isFuture = (ds > td);
     var dow = new Date(viewYear, viewMonth, d).getDay();
 
-    var dayTasks = activeChildId ? getDayTasks(activeChildId, ds) : [];
+    var dayTasks = (!isFuture && activeChildId) ? getDayTasks(activeChildId, ds) : [];
     var doneCount = dayTasks.filter(function(t){ return t.completed; }).length;
     var hasDone = doneCount > 0;
     var allDone = dayTasks.length > 0 && doneCount === dayTasks.length;
@@ -740,13 +740,16 @@ function renderCalendar() {
     el.className = 'cal-day' +
       (isToday ? ' today' : '') +
       (isSelected ? ' selected' : '') +
+      (isFuture ? ' future' : '') +
       (allDone ? ' all-done has-done' : (hasDone ? ' has-done' : '')) +
       (dow === 0 ? ' sun' : '') +
       (dow === 6 ? ' sat' : '');
     el.textContent = d;
-    el.onclick = (function(date) {
-      return function() { selectedDate = date; renderAll(); };
-    })(ds);
+    if (!isFuture) {
+      el.onclick = (function(date) {
+        return function() { selectedDate = date; renderAll(); };
+      })(ds);
+    }
     grid.appendChild(el);
   }
   // 다음 달
@@ -809,9 +812,24 @@ function renderSummary() {
       if (t) earned += t.gameMinutes;
     }
   });
+  // 총 미사용 게임시간 계산
+  var totalUnused = 0;
+  if (child.rewards) {
+    child.rewards.forEach(function(r) { if (!r.used) totalUnused += r.value; });
+  }
+  var totalStr;
+  if (totalUnused >= 60) {
+    var hrs = Math.floor(totalUnused / 60);
+    var mins = totalUnused % 60;
+    totalStr = hrs + '시간' + (mins > 0 ? ' ' + mins + '분' : '');
+  } else {
+    totalStr = totalUnused + '분';
+  }
+
   document.getElementById('calSummary').innerHTML =
     '<div class="s-card done"><div class="num">' + done + '/' + total + '</div><div class="lbl">완료</div></div>' +
-    '<div class="s-card time"><div class="num">' + earned + '분</div><div class="lbl">획득 게임시간</div></div>';
+    '<div class="s-card time"><div class="num">' + earned + '분</div><div class="lbl">오늘 획득</div></div>' +
+    '<div class="s-card total"><div class="num">' + totalStr + '</div><div class="lbl">총 게임시간</div></div>';
 }
 
 function renderTaskList() {
@@ -867,6 +885,6 @@ document.getElementById('ticketModalOverlay').addEventListener('click', function
   renderAll();
 })();
 </script>
-<div style="text-align:center;padding:12px;font-size:.65rem;color:#ccc;font-family:monospace">build: 2026-05-11 v21</div>
+<div style="text-align:center;padding:12px;font-size:.65rem;color:#ccc;font-family:monospace">build: 2026-05-11 v22</div>
 </body>
 </html>
