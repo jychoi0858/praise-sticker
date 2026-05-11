@@ -920,6 +920,7 @@ function renderTicketModal() {
           (!isProcessed ?
             '<button class="ticket-btn deduct" onclick="openPickTicketModal(' + i + ')">회수하기</button>' :
             '<span class="ticket-btn deducted-label">처리됨</span>') +
+          '<button class="ticket-btn del" onclick="deleteTicket(' + i + ')">✕</button>' +
         '</div>';
     } else {
       div.innerHTML =
@@ -1294,6 +1295,6 @@ document.getElementById('pickTicketModalOverlay').addEventListener('click', func
   renderAll();
 })();
 </script>
-<div style="text-align:center;padding:12px;font-size:.65rem;color:#ccc;font-family:monospace">build: 2026-05-11 v27</div>
+<div style="text-align:center;padding:12px;font-size:.65rem;color:#ccc;font-family:monospace">build: 2026-05-11 v28</div>
 </body>
 </html>
