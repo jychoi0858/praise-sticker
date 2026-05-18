@@ -675,7 +675,8 @@ function saveChild() {
       { id: uid(), name: '독서 1권', gameMinutes: 20 }
     ],
     rewards: [],
-    penalties: []
+    penalties: [],
+    earnLog: []
   });
   activeChildId = children[children.length-1].id;
   persist(); closeChildModal(); renderAll();
@@ -753,6 +754,12 @@ function toggleTask(taskId) {
       type:'game', value:task.gameMinutes, taskName:task.name,
       date:item.completedAt, used:false, usedDate:''
     });
+    // 획득 이력 기록 (사용권 삭제해도 남음)
+    if (!child.earnLog) child.earnLog = [];
+    child.earnLog.push({
+      dateKey: selectedDate, taskName: task.name,
+      minutes: task.gameMinutes, timestamp: item.completedAt
+    });
   } else {
     var task = child.tasks.find(function(t){ return t.id === taskId; });
     item.completed = false; item.completedAt = '';
@@ -760,6 +767,14 @@ function toggleTask(taskId) {
       for (var ri = child.rewards.length-1; ri >= 0; ri--) {
         if (child.rewards[ri].taskName === task.name && !child.rewards[ri].used) {
           child.rewards.splice(ri, 1); break;
+        }
+      }
+    }
+    // 획득 이력도 제거
+    if (task && child.earnLog) {
+      for (var ei = child.earnLog.length-1; ei >= 0; ei--) {
+        if (child.earnLog[ei].dateKey === selectedDate && child.earnLog[ei].taskName === task.name) {
+          child.earnLog.splice(ei, 1); break;
         }
       }
     }
@@ -1128,8 +1143,14 @@ function renderCalendar() {
 
     var dayTasks = (!isFuture && activeChildId) ? getDayTasks(activeChildId, ds) : [];
     var doneCount = dayTasks.filter(function(t){ return t.completed; }).length;
-    var hasDone = doneCount > 0;
-    var allDone = dayTasks.length > 0 && doneCount === dayTasks.length;
+    // earnLog에서도 해당 날짜 기록 확인 (사용권 삭제 후에도 유지)
+    var child = children.find(function(c){ return c.id === activeChildId; });
+    var earnCount = 0;
+    if (child && child.earnLog) {
+      earnCount = child.earnLog.filter(function(e){ return e.dateKey === ds; }).length;
+    }
+    var hasDone = doneCount > 0 || earnCount > 0;
+    var allDone = (dayTasks.length > 0 && doneCount === dayTasks.length) || (earnCount > 0 && earnCount >= (child ? child.tasks.length : 0));
 
     var el = document.createElement('div');
     el.className = 'cal-day' +
@@ -1203,13 +1224,22 @@ function renderSummary() {
   var dayTasks = getDayTasks(activeChildId, selectedDate);
   var done = dayTasks.filter(function(t){ return t.completed; }).length;
   var total = dayTasks.length;
+  // earnLog 기반 획득 시간 (사용권 삭제해도 유지)
   var earned = 0;
-  dayTasks.forEach(function(dt) {
-    if (dt.completed) {
-      var t = child.tasks.find(function(x){ return x.id === dt.taskId; });
-      if (t) earned += t.gameMinutes;
-    }
-  });
+  if (child.earnLog) {
+    child.earnLog.forEach(function(e) {
+      if (e.dateKey === selectedDate) earned += e.minutes;
+    });
+  }
+  // earnLog가 없는 경우 (이전 데이터 호환) taskHistory 기반 계산
+  if (!earned) {
+    dayTasks.forEach(function(dt) {
+      if (dt.completed) {
+        var t = child.tasks.find(function(x){ return x.id === dt.taskId; });
+        if (t) earned += t.gameMinutes;
+      }
+    });
+  }
   // 총 미사용 게임시간 계산
   // 미사용 게임 사용권 합산 (이미 벌점으로 금액 차감된 것도 반영됨)
   var totalUnused = 0;
@@ -1268,6 +1298,34 @@ function renderTaskList() {
     card.onclick = function() { toggleTask(task.id); };
     area.appendChild(card);
   });
+
+  // earnLog 기반 획득 이력 표시 (사용권 삭제 후에도 유지)
+  if (child.earnLog) {
+    var dayEarns = child.earnLog.filter(function(e){ return e.dateKey === selectedDate; });
+    if (dayEarns.length) {
+      var logDiv = document.createElement('div');
+      logDiv.style.cssText = 'margin-top:16px;padding-top:12px;border-top:1px solid #f0ebe4';
+      var logTitle = document.createElement('div');
+      logTitle.style.cssText = 'font-size:.75rem;color:#999;font-weight:700;margin-bottom:8px';
+      logTitle.textContent = '📝 이 날의 획득 기록';
+      logDiv.appendChild(logTitle);
+      dayEarns.forEach(function(e) {
+        var item = document.createElement('div');
+        item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-radius:8px;background:#f8f7ff;margin-bottom:4px;font-size:.78rem';
+        item.innerHTML =
+          '<span style="font-weight:600;color:#555">' + e.taskName + '</span>' +
+          '<span style="font-weight:800;color:#667eea">+' + e.minutes + '분</span>';
+        logDiv.appendChild(item);
+      });
+      var totalEarned = 0;
+      dayEarns.forEach(function(e){ totalEarned += e.minutes; });
+      var sumItem = document.createElement('div');
+      sumItem.style.cssText = 'text-align:right;font-size:.72rem;font-weight:800;color:#667eea;margin-top:4px;padding-right:10px';
+      sumItem.textContent = '합계: +' + totalEarned + '분';
+      logDiv.appendChild(sumItem);
+      area.appendChild(logDiv);
+    }
+  }
 }
 
 function renderTicketBadge() {
@@ -1295,6 +1353,6 @@ document.getElementById('pickTicketModalOverlay').addEventListener('click', func
   renderAll();
 })();
 </script>
-<div style="text-align:center;padding:12px;font-size:.65rem;color:#ccc;font-family:monospace">build: 2026-05-11 v28</div>
+<div style="text-align:center;padding:12px;font-size:.65rem;color:#ccc;font-family:monospace">build: 2026-05-18 v29</div>
 </body>
 </html>
